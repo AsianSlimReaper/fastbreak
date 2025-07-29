@@ -1,0 +1,43 @@
+.policy-container {
+    background-color: var(--primary-colour);
+    border: 1px solid var(--accent-colour);
+    border-radius: 25px;
+    max-width: 800px;
+    margin: 4rem auto;
+    padding: 2rem;
+    animation: fadeInUp 1s ease forwards;
+    box-shadow: var(--box-shadow);
+    transition: box-shadow 0.3s ease;
+}
+
+.policy-container h1 {
+    font-size: 2.5rem;
+    color: var(--accent-colour);
+    margin-bottom: 1rem;
+}
+
+.policy-container h2{
+    font-size: 1.5rem;
+    color: var(--accent-colour);
+    margin: 1.5rem 0 0.75rem;
+}
+
+.policy-container p{
+    font-size: 1rem;
+}
+
+.policy-container ul{
+    font-size: 1rem;
+    margin: 1rem;
+}
+
+.policy-container a{
+    color: var(--text-colour);
+    margin: 0 1rem;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.policy-container a:hover{
+    color: var(--accent-colour);
+}

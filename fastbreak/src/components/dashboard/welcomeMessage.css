@@ -1,0 +1,15 @@
+.dashboard-welcome-message{
+    display: flex;
+    flex-direction: column;
+    margin:15px
+}
+
+.dashboard-welcome-message h1{
+    font-size: 2.5rem;
+    color: var(--accent-colour);
+}
+
+.dashboard-welcome-message p{
+    font-size: 1.5rem;
+    color: var(--muted-colour);
+}

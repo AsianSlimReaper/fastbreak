@@ -1,0 +1,23 @@
+.dashboard-team-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto;
+    gap: 20px;
+    margin:15px;
+}
+
+.stat-box {
+    background-color: var(--primary-colour);
+    border: 1px solid var(--accent-colour);
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.stat-box h4 {
+    color: var(--muted-colour);
+}
+
+.stat-box p{
+    color: var(--muted-colour);
+}

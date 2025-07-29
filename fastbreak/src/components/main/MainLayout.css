@@ -1,0 +1,14 @@
+.main-layout {
+    display: flex;
+    flex-direction: row;
+}
+
+.side-nav-wrapper{
+    width: 250px
+}
+
+.main-content {
+    flex: 1;
+    padding:2rem;
+    background-color: var(--background-colour);
+}

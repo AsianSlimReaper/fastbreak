@@ -1,0 +1,41 @@
+.teams-welcome-text {
+    padding: 2rem;
+    text-align: center;
+}
+
+.teams-welcome-text h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    color:var(--accent-colour)
+}
+
+.teams-welcome-text p {
+    font-size: 1.25rem;
+    color: var(--text-colour);
+}
+
+.team-card-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1.5rem;
+    padding: 2rem;
+}
+
+.team-card-wrapper{
+    margin-left:2rem;
+    margin-right:2rem;
+}
+
+.no-teams {
+    grid-column: 3;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.no-teams p{
+    font-size: 1.25rem;
+    color: var(--muted-colour);
+    margin-top: 1rem;
+}

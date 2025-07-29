@@ -1,0 +1,109 @@
+.landing-top-nav a {
+    color: var(--text-colour);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.landing-top-nav a:hover {
+    color: var(--accent-colour);
+    text-decoration: underline;
+}
+
+.landing-top-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--primary-colour);
+    padding: 1rem 2rem;
+    box-shadow: var(--box-shadow);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.landing-logo-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    flex: 1;
+}
+
+.landing-logo-image {
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    cursor: pointer;
+    object-fit: cover;
+}
+
+.landing-nav-list {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.landing-nav-list ul {
+    list-style: none;
+    display: flex;
+    gap: 1.5rem;
+}
+
+.landing-nav-list a {
+    color: var(--text-colour);
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+.login:hover a {
+    color: var(--accent-colour);
+    text-decoration: underline;
+}
+
+.login-dropdown-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.login-dropdown-toggle {
+    background: none;
+    border: none;
+    color: var(--text-colour);
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+}
+
+.login-dropdown-toggle:hover{
+    color: var(--accent-colour);
+    transition: color 0.3s ease;
+}
+
+.login-dropdown-menu {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background-color: var(--primary-colour);
+    border: 1px solid var(--accent-colour);
+    border-radius: 8px;
+    padding: 0.5rem 0;
+    display: flex;
+    flex-direction: column;
+    min-width: 120px;
+    z-index: 1000;
+}
+
+.login-dropdown-menu a {
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    color: var(--text-colour);
+}
+
+.login-dropdown-menu a:hover {
+    background-color: var(--accent-colour);
+    color: var(--primary-colour);
+}
+
+
+

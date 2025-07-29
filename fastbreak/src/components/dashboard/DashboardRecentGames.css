@@ -1,0 +1,54 @@
+.dashboard-recent-games-container {
+    padding: 1rem;
+    background-color: var(--primary-colour);
+    border: 1px solid var(--accent-colour);
+    border-radius: 0.5rem;
+    overflow-x: auto;
+	height:100%;
+}
+
+.dashboard-recent-games-container h3{
+	color: var(--muted-colour);
+}
+
+.dashboard-recent-games-table {
+    width: 100%;
+    border-collapse: collapse;
+	text-align:left;
+
+}
+
+.dashboard-recent-games-table th,
+.dashboard-recent-games-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--accent-colour);
+}
+
+.dashboard-recent-games-table th {
+    font-weight: bold;
+}
+
+.dashboard-recent-games-table tr:last-child td {
+    border-bottom: none;
+}
+
+.dashboard-recent-games-table td {
+    font-size: 0.95rem;
+}
+
+.dashboard-recent-games-table th:nth-child(1),
+.dashboard-recent-games-table td:nth-child(1) {
+    width: 10%;
+}
+
+.dashboard-recent-games-table th:nth-child(2),
+.dashboard-recent-games-table td:nth-child(2) {
+    width: 50%;
+}
+
+.dashboard-recent-games-table th:nth-child(3),
+.dashboard-recent-games-table td:nth-child(3),
+.dashboard-recent-games-table th:nth-child(4),
+.dashboard-recent-games-table td:nth-child(4) {
+    width: 15%;
+}

@@ -1,0 +1,50 @@
+.side-nav{
+    padding-top: 2.5rem;
+    width: 250px;
+    display: flex;
+    height:90vh;
+    position:sticky;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap:2rem;
+    background-color: var(--primary-colour);
+    box-shadow: var(--box-shadow) ;
+}
+
+.side-nav button{
+    position: relative;
+    background: none;
+    border: none;
+    color: var(--text-colour);
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+    text-align: center;
+    width: 100%;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.side-nav button::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 2px;
+    background-color: var(--accent-colour);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.3s ease-out;
+}
+
+.side-nav button:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+}
+
+.side-nav button.active-module{
+    text-decoration: underline;
+    text-decoration-color: var(--accent-colour);
+    text-decoration-thickness: 3px;
+    font-weight: bold;
+}

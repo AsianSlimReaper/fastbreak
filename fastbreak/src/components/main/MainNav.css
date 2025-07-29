@@ -1,0 +1,132 @@
+.main-nav{
+    display: flex;
+    height: 10vh;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--primary-colour);
+    padding: 1rem 2rem;
+    box-shadow: var(--box-shadow);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.main-nav-title{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    flex: 1;
+}
+.main-nav-logo{
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    cursor: pointer;
+    object-fit: cover;
+}
+
+.main-nav a{
+    color: var(--text-colour);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.main-nav a:hover{
+    color: var(--accent-colour);
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+.main-nav ul {
+    list-style: none;
+    display: flex;
+    gap: 1.5rem;
+    padding: 0;
+    margin: 0;
+}
+
+.main-nav-teams {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.main-nav a {
+    position: relative;
+    text-decoration: none;
+    color: var(--text-colour);
+    padding-bottom: 4px;
+}
+
+.main-nav a::after,
+.main-nav-settings::after{
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 2px;
+    background-color: var(--accent-colour);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.3s ease-out;
+}
+
+.main-nav a:hover::after,
+.main-nav-settings:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+}
+
+.active-team a{
+    text-decoration: underline;
+    text-decoration-color: var(--accent-colour);
+    text-decoration-thickness: 3px;
+    font-weight: bold;
+}
+
+.main-nav-settings {
+    position: relative;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    max-width:40px;
+}
+
+.main-nav-settings button{
+    background-color: transparent;
+    border:none;
+    color: var(--text-colour);
+}
+
+.main-nav-settings button:hover{
+    cursor: pointer;
+}
+
+.main-nav-settings img{
+    max-width:30px;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: var(--primary-colour);
+    border: 1px solid var(--accent-colour);
+    border-radius: 8px;
+    box-shadow: var(--box-shadow);
+    padding: 0.5rem;
+    z-index: 1001;
+    min-width: 120px;
+}
+
+.dropdown-menu p {
+    margin: 0.5rem 0;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.dropdown-menu p:hover {
+    color: var(--accent-colour);
+}

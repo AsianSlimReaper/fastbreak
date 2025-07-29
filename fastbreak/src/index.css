@@ -1,0 +1,49 @@
+:root {
+    --primary-colour: #1e1e1e;
+    --secondary-colour:#323232;
+    --tertiary-colour: #555555;
+    --background-colour: #242424;
+    --accent-colour: #3B82F6;
+    --text-colour: #E0E0E0;
+    --muted-colour: #A1A1AA;
+    --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+    --transition: all 0.3s ease;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    font-family:'Inter', sans-serif;
+    background: var(--background-colour);
+    color: var(--text-colour);
+    line-height: 1.6;
+    scroll-behavior: smooth;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

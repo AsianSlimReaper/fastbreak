@@ -1,0 +1,72 @@
+import React, { useState } from "react";
+import {Link, useLocation, useNavigate} from "react-router-dom";
+import logo from "../../assets/logo.png";
+import './MainNav.css'
+import settingsIcon from "../../assets/settings-icon.png"
+
+function MainNav({ teams, setCurrentTeam }) {
+    const navigate = useNavigate();
+    const [showDropdown, setShowDropdown] = useState(false);
+
+    const toggleDropdown = () => setShowDropdown(!showDropdown);
+
+    const location = useLocation();
+    const currentTeamId = location.pathname.split("/").includes("team")
+        ? location.pathname.split("/").at(-1)
+        : null;
+
+    const logout = () => {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('user');
+        localStorage.removeItem('teams')
+        navigate('/');
+    };
+
+    const navigateProfile = () => {
+        navigate('/profile');
+    };
+
+    const navigateHome = () =>{
+        navigate(`/teams`)
+    }
+
+    return (
+        <nav className="main-nav">
+            <div className="main-nav-title" onClick={navigateHome}>
+                <img src={logo} alt="basketball-logo" className="main-nav-logo" />
+                <h1>FastBreak</h1>
+            </div>
+            <div className="main-nav-teams">
+                <ul>
+                    {teams.map((membership) => (
+                        <li
+                            key={membership.id}
+                            className={membership.team.id === currentTeamId ? "active-team" : ""}
+                            onClick={() => setCurrentTeam(membership.team.team_name)}
+                        >
+                            <Link to={`/dashboard/team/${membership.team.id}`}>
+                                {membership.team.team_name}
+                            </Link>
+                        </li>
+                    ))}
+                    <li>
+                        <Link to="/add-team">+add team</Link>
+                    </li>
+                </ul>
+            </div>
+            <div className="main-nav-settings">
+                <button className="settings-button" onClick={toggleDropdown}>
+                    <img src={settingsIcon} alt="settings-icon" />
+                </button>
+                {showDropdown && (
+                    <div className="dropdown-menu">
+                        <p onClick={navigateProfile}>Profile</p>
+                        <p onClick={logout}>Logout</p>
+                    </div>
+                )}
+            </div>
+        </nav>
+    );
+}
+
+export default MainNav

@@ -1,0 +1,47 @@
+.register-container{
+    background-color: var(--primary-colour);
+    border: 1px solid var(--accent-colour);
+    border-radius: 25px;
+    max-width: 600px;
+    margin: 4rem auto;
+    padding: 2rem;
+    animation: fadeInUp 1s ease forwards;
+    text-align: left;
+    box-shadow: var(--box-shadow);
+    transition: box-shadow 0.3s ease;
+    display:flex;
+    flex-direction: column;
+}
+
+.register-container a{
+    color: var(--text-colour);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.register-container h1{
+    color:var(--accent-colour)
+}
+
+.register-container a:hover {
+    color: var(--accent-colour);
+    text-decoration: underline;
+}
+
+.register-input-wrapper{
+    display:flex;
+    flex-direction: column;
+    gap:2rem;
+}
+
+.register-name-wrapper{
+    display:flex;
+    flex-direction: row;
+    gap: 3rem;
+}
+
+.register-button-wrapper{
+    display:flex;
+    justify-content: center;
+    margin:2rem;
+}

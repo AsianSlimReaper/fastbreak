@@ -1,0 +1,28 @@
+.dashboard-individual-player-stats-grid {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	grid-template-rows: auto auto auto;
+	height:100%;
+	gap: 1.5rem;
+	padding: 1rem 0;
+	justify-items: center;
+}
+
+.dashboard-individual-player-stats-item {
+	background-color: var(--primary-colour);
+	border: 1px solid var(--accent-colour);
+	border-radius: 0.5rem;
+	padding: 1rem;
+	width: 100%;
+	max-width: 300px;
+	text-align: center;
+}
+
+.dashboard-individual-player-stats-item h3{
+	color:var(--muted-colour);
+	font-size: 1rem;
+}
+
+.dashboard-individual-player-stats-item p{
+	color: var(--muted-colour)
+}
