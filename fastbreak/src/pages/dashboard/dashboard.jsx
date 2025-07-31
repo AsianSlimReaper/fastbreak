@@ -7,7 +7,8 @@ import DashboardTeamStats from "../../components/dashboard/TeamStats.jsx";
 import DashboardPlayerIndividualStats from "../../components/dashboard/PlayerIndividualStats.jsx";
 import DashboardAllIndividualStats from "../../components/dashboard/AllIndividualStats.jsx";
 import DashboardRecentGames from "../../components/dashboard/DashboardRecentGames.jsx";
-import './dashboard.css'
+import './dashboard.css';
+import Loader from "../../components/universal/Loader.jsx";
 
 function Dashboard() {
 	const { teamId } = useParams();
@@ -24,32 +25,29 @@ function Dashboard() {
 	}, [teamId]);
 
 	useEffect(() => {
-		const fetchDashboardInfo = async () => {
+		const fetchTeamsAndUser = async () => {
 			try {
-				const userData = JSON.parse(localStorage.getItem("user"));
-				const teamMembershipsData = JSON.parse(localStorage.getItem("teams"));
+				const storedUser = JSON.parse(localStorage.getItem("user"));
+				const storedTeams = JSON.parse(localStorage.getItem("teams"));
+				if (!storedUser || !storedTeams || !teamId) return;
 
-				if (!userData || !teamMembershipsData || !teamId) return;
+				setUser(storedUser);
+				setTeams(storedTeams);
 
-				setUser(userData);
-				setTeams(teamMembershipsData);
-
-				const matchedTeam = teamMembershipsData.find(
-					(team) => team.team.id === teamId
-				);
-
-				if (!matchedTeam) return;
-
-				const resolvedRole = matchedTeam.role;
+				const matchedTeam = storedTeams.find((t) => t.team.id === teamId);
+				if (!matchedTeam) {
+					setCurrentTeam(null);
+					setRole(null);
+					return;
+				}
 				setCurrentTeam(matchedTeam.team);
-				setRole(resolvedRole);
+				setRole(matchedTeam.role);
 
-				// Fetch dashboard data based on role
-				if (resolvedRole === "coach") {
+				if (matchedTeam.role === "coach") {
 					const coachData = await GetCoachDashboardData(token, teamId);
 					setDashboardData(coachData);
-				} else if (resolvedRole === "player") {
-					const playerData = await GetPlayerDashboardData(token, userData.id, teamId);
+				} else if (matchedTeam.role === "player") {
+					const playerData = await GetPlayerDashboardData(token, storedUser.id, teamId);
 					setDashboardData(playerData);
 				}
 			} catch (error) {
@@ -57,38 +55,38 @@ function Dashboard() {
 			}
 		};
 
-		fetchDashboardInfo();
+		fetchTeamsAndUser();
 	}, [teamId, token]);
 
 	return (
-		<MainLayout setCurrentTeam={setCurrentTeam} teams={teams}>
+		<MainLayout teams={teams} currentTeam={currentTeam}>
 			<div className="dashboard-grid">
-				{dashboardData && (
+				{dashboardData ? (
 					<>
-						<div className='dashboard-welcome-message-wrapper'>
+						<div className="dashboard-welcome-message-wrapper">
 							<WelcomeMessage user={user} currentTeam={currentTeam} />
 						</div>
 
-						<div className='dashboard-team-stats-wrapper'>
-							<DashboardTeamStats DashboardData={dashboardData} />
+						<div className="dashboard-team-stats-wrapper">
+							<DashboardTeamStats dashboardData={dashboardData} />
 						</div>
 
-						<div className='dashboard-individual-stats-wrapper'>
+						<div className="dashboard-individual-stats-wrapper">
 							{role === "player" ? (
-								<DashboardPlayerIndividualStats DashboardData={dashboardData} />
+								<DashboardPlayerIndividualStats dashboardData={dashboardData} />
 							) : (
-								<DashboardAllIndividualStats DashboardData={dashboardData} />
+								<DashboardAllIndividualStats dashboardData={dashboardData} />
 							)}
 						</div>
 
-						<div className='dashboard-recent-games-wrapper'>
+						<div className="dashboard-recent-games-wrapper">
 							<DashboardRecentGames dashboardData={dashboardData} />
 						</div>
 					</>
+				) : (
+					<div className="dashboard-loader"><Loader /></div>
 				)}
-				{!dashboardData && <p>Loading dashboard...</p>}
 			</div>
-
 		</MainLayout>
 	);
 }

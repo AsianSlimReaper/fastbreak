@@ -1,10 +1,9 @@
 .dashboard-individual-player-stats-grid {
 	display: grid;
 	grid-template-columns: repeat(2, 1fr);
-	grid-template-rows: auto auto auto;
+	grid-template-rows: 1fr 1fr 1fr;
 	height:100%;
 	gap: 1.5rem;
-	padding: 1rem 0;
 	justify-items: center;
 }
 

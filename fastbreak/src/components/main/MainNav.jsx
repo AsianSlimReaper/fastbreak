@@ -1,24 +1,20 @@
 import React, { useState } from "react";
-import {Link, useLocation, useNavigate} from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import logo from "../../assets/logo.png";
-import './MainNav.css'
-import settingsIcon from "../../assets/settings-icon.png"
+import './MainNav.css';
+import settingsIcon from "../../assets/settings-icon.png";
 
-function MainNav({ teams, setCurrentTeam }) {
+function MainNav({ teams }) {
     const navigate = useNavigate();
     const [showDropdown, setShowDropdown] = useState(false);
+    const { teamId: currentTeamId } = useParams();
 
     const toggleDropdown = () => setShowDropdown(!showDropdown);
-
-    const location = useLocation();
-    const currentTeamId = location.pathname.split("/").includes("team")
-        ? location.pathname.split("/").at(-1)
-        : null;
 
     const logout = () => {
         localStorage.removeItem('access_token');
         localStorage.removeItem('user');
-        localStorage.removeItem('teams')
+        localStorage.removeItem('teams');
         navigate('/');
     };
 
@@ -26,9 +22,9 @@ function MainNav({ teams, setCurrentTeam }) {
         navigate('/profile');
     };
 
-    const navigateHome = () =>{
-        navigate(`/teams`)
-    }
+    const navigateHome = () => {
+        navigate('/teams');
+    };
 
     return (
         <nav className="main-nav">
@@ -42,7 +38,6 @@ function MainNav({ teams, setCurrentTeam }) {
                         <li
                             key={membership.id}
                             className={membership.team.id === currentTeamId ? "active-team" : ""}
-                            onClick={() => setCurrentTeam(membership.team.team_name)}
                         >
                             <Link to={`/dashboard/team/${membership.team.id}`}>
                                 {membership.team.team_name}
@@ -69,4 +64,4 @@ function MainNav({ teams, setCurrentTeam }) {
     );
 }
 
-export default MainNav
+export default MainNav;

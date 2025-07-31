@@ -11,6 +11,7 @@ import AppLayout from "./AppLayout.jsx";
 import Teams from "./pages/teams/teams.jsx";
 import Dashboard from "./pages/dashboard/dashboard.jsx";
 import AddTeam from "./pages/teams/addTeam.jsx";
+import BasicStats from "./pages/stats/BasicStats.jsx";
 
 function App() {
     return (
@@ -26,6 +27,7 @@ function App() {
                 <Route path ="/teams" element = {<Teams/>}/>
                 <Route path="/dashboard/team/:teamId" element = {<Dashboard/>}/>
                 <Route path = "/add-team" element = {<AddTeam/>}/>
+                <Route path = "/stats/basic/:teamId" element = {<BasicStats/>}/>
             </Routes>
         </AppLayout>
     );
