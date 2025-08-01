@@ -1,0 +1,52 @@
+.stats-nav {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    background-color: var(--secondary-colour);
+    height: 7vh;
+    padding-left: 1rem;
+    gap: 2rem;
+}
+
+.stats-nav button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: transparent;
+    border: none;
+    color: var(--muted-colour);
+    font-size: 1.1rem;
+    padding: 0.5rem 0;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.3s ease;
+    height: 100%;
+}
+
+.stats-nav button:hover {
+    color: var(--accent-colour);
+}
+
+.stats-nav .active-tab {
+    color: var(--accent-colour);
+    font-weight: 600;
+}
+
+.stats-nav button::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    width: 100%;
+    background-color: var(--accent-colour);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+}
+
+.stats-nav button:hover::after,
+.stats-nav .active-tab::after {
+    transform: scaleX(1);
+}

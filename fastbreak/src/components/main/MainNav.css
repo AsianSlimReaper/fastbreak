@@ -1,4 +1,4 @@
-.main-nav{
+.main-nav {
     display: flex;
     height: 10vh;
     align-items: center;
@@ -11,14 +11,15 @@
     z-index: 1000;
 }
 
-.main-nav-title{
+.main-nav-title {
     display: flex;
     align-items: center;
     gap: 10px;
     cursor: pointer;
     flex: 1;
 }
-.main-nav-logo{
+
+.main-nav-logo {
     border-radius: 50%;
     width: 60px;
     height: 60px;
@@ -26,13 +27,13 @@
     object-fit: cover;
 }
 
-.main-nav a{
+.main-nav a {
     color: var(--text-colour);
     text-decoration: none;
     transition: var(--transition);
 }
 
-.main-nav a:hover{
+.main-nav a:hover {
     color: var(--accent-colour);
     text-decoration: underline;
     font-weight: bold;
@@ -59,8 +60,7 @@
     padding-bottom: 4px;
 }
 
-.main-nav a::after,
-.main-nav-settings::after{
+.main-nav a::after {
     content: "";
     position: absolute;
     left: 0;
@@ -73,13 +73,12 @@
     transition: transform 0.3s ease-out;
 }
 
-.main-nav a:hover::after,
-.main-nav-settings:hover::after {
+.main-nav a:hover::after {
     transform: scaleX(1);
     transform-origin: left;
 }
 
-.active-team a{
+.active-team a {
     text-decoration: underline;
     text-decoration-color: var(--accent-colour);
     text-decoration-thickness: 3px;
@@ -90,22 +89,53 @@
     position: relative;
     flex: 1;
     display: flex;
-    justify-content: center;
-    max-width:40px;
+    justify-content: flex-end;
+    align-items: center;
+    min-width: 200px;
+    gap: 20px;
 }
 
-.main-nav-settings button{
-    background-color: transparent;
-    border:none;
+.user-name {
+    font-weight: 500;
     color: var(--text-colour);
+    max-width: 150px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.main-nav-settings button:hover{
+.main-nav-settings button {
+    position: relative;
+    background-color: transparent;
+    border: none;
+    color: var(--text-colour);
+    padding: 0;
+}
+
+.main-nav-settings button img {
+    max-width: 30px;
+    display: block;
+}
+
+.main-nav-settings button::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 30px;
+    height: 2px;
+    background-color: var(--accent-colour);
+    transform: translateX(-50%) scaleX(0);
+    transform-origin: center;
+    transition: transform 0.3s ease-out;
+}
+
+.main-nav-settings button:hover::after {
+    transform: translateX(-50%) scaleX(1);
+}
+
+.main-nav-settings button:hover {
     cursor: pointer;
-}
-
-.main-nav-settings img{
-    max-width:30px;
 }
 
 .dropdown-menu {

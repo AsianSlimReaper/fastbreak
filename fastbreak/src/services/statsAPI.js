@@ -19,7 +19,7 @@ export const getIndividualStats = async(teamId,token) =>{
 
 export const getTeamStats = async(teamId,token) =>{
 	try{
-		const response = await Axios.get(`${BASE_URL}/stats/team/${teamId}`,
+		const response = await axios.get(`${BASE_URL}/stats/team/${teamId}`,
 			{
 				headers: {
 					'Authorization': `Bearer ${token}`
@@ -34,7 +34,7 @@ export const getTeamStats = async(teamId,token) =>{
 	}
 }
 
-export const IndividualShootingStats = async(teamId,token) =>{
+export const getIndividualShootingStats = async(teamId,token) =>{
 	try{
 		const response = await axios.get(`${BASE_URL}/stats/individual/shooting/${teamId}`,
 			{
@@ -50,7 +50,7 @@ export const IndividualShootingStats = async(teamId,token) =>{
 	}
 }
 
-export const TeamShootingStats = async(teamId,token) =>{
+export const getTeamShootingStats = async(teamId,token) =>{
 	try{
 		const response = await axios.get(`${BASE_URL}/stats/team/shooting/${teamId}`,
 			{

@@ -1,0 +1,37 @@
+.add-team-forms {
+	flex: 1;
+	display: flex;
+	gap: 40px;
+	justify-content: center;
+	align-items: stretch;
+	padding: 50px;
+	box-sizing: border-box;
+}
+
+.join-team-form,
+.create-team-form {
+	flex:1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 320px;
+	border: 1px solid var(--accent-colour);
+	border-radius: 15px;
+	background-color: var(--primary-colour);
+	padding: 30px 20px;
+}
+
+.join-team-form h2,
+.create-team-form h2 {
+	margin-bottom: 20px;
+	color: var(--accent-colour);
+	width: 100%;
+}
+
+.join-team-form .add-team-button-wrapper,
+.create-team-form .add-team-button-wrapper {
+	margin-top:auto;
+	justify-content: flex-end;
+}
+
+

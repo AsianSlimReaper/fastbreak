@@ -8,6 +8,7 @@ function MainNav({ teams }) {
     const navigate = useNavigate();
     const [showDropdown, setShowDropdown] = useState(false);
     const { teamId: currentTeamId } = useParams();
+    const user = JSON.parse(localStorage.getItem('user'));
 
     const toggleDropdown = () => setShowDropdown(!showDropdown);
 
@@ -50,6 +51,7 @@ function MainNav({ teams }) {
                 </ul>
             </div>
             <div className="main-nav-settings">
+                <p className='main-nav-user-name'>{user.name}</p>
                 <button className="settings-button" onClick={toggleDropdown}>
                     <img src={settingsIcon} alt="settings-icon" />
                 </button>

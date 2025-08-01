@@ -4,6 +4,7 @@ from uuid import UUID
 class IndividualBasicStats(BaseModel):
     user_id: UUID
     user_name: str
+    games_played:int
     mins: float
     ppg: float
     apg: float
@@ -25,8 +26,8 @@ class TeamBasicStats(BaseModel):
     wins: int
     losses: int
     draws: int
-    point_for: int
-    point_against: int
+    points_for: int
+    points_against: int
     ast:float
     oreb: float
     dreb: float
@@ -55,7 +56,7 @@ class IndividualShootingStats(BaseModel):
     twop_pct: float
     threepm: float
     threepa: float
-    three_pct: float
+    threep_pct: float
     ftm: float
     fta: float
     ft_pct: float
@@ -75,7 +76,7 @@ class TeamShootingStats(BaseModel):
     twop_pct: float
     threepm: float
     threepa: float
-    three_pct: float
+    threep_pct: float
     ftm: float
     fta: float
     ft_pct: float

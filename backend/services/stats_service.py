@@ -41,6 +41,7 @@ def calculate_individual_averages(stats):
                                                  stat.fta,stat.ftm,stat.tov)
 
     return{
+        "games_played": num_games,
         "mins": round(total_minutes / num_games, 1),
         "ppg": round(total_points / num_games, 1),
         "apg": round(total_assists / num_games, 1),
@@ -54,7 +55,7 @@ def calculate_individual_averages(stats):
         "plus_minus": round(total_plus_minus / num_games, 1),
         "efficiency": round(total_efficiency / num_games, 1)
     } if num_games else {
-        "ppg": 0.0, "apg": 0.0, "rpg": 0.0,"orpg": 0.0,"drpg": 0.0, "spg": 0.0, "bpg": 0.0,
+        "games_played":0,"ppg": 0.0, "apg": 0.0, "rpg": 0.0,"orpg": 0.0,"drpg": 0.0, "spg": 0.0, "bpg": 0.0,
         "mins": 0.0, "ast": 0.0, "oreb": 0.0, "dreb": 0.0, "reb": 0.0, "stl": 0.0, "blk": 0.0,
         "tpg": 0.0, "fpg": 0.0, "plus_minus": 0.0, "efficiency": 0.0
     }
@@ -79,11 +80,11 @@ def calculate_shooting_averages(stats):
         "fgm": round(total_fgm / num_games, 1),
         "fga": round(total_fga / num_games, 1),
         "fg_pct": round(calculate_fg_percent(total_fgm, total_fga), 3) if total_fga > 0 else 0.0,
-        "two_pm": round(total_twopm / num_games, 1),
-        "two_pa": round(total_twopa / num_games, 1),
+        "twopm": round(total_twopm / num_games, 1),
+        "twopa": round(total_twopa / num_games, 1),
         "twop_pct": round(calculate_2p_percent(total_twopm, total_twopa), 3) if total_twopa > 0 else 0.0,
-        "three_pm": round(total_threepm / num_games, 1),
-        "three_pa": round(total_threepa / num_games, 1),
+        "threepm": round(total_threepm / num_games, 1),
+        "threepa": round(total_threepa / num_games, 1),
         "threep_pct": round(calculate_3p_percent(total_threepm, total_threepa), 3) if total_threepa > 0 else 0.0,
         "ftm": round(total_ftm / num_games, 1),
         "fta": round(total_fta / num_games, 1),
@@ -251,8 +252,8 @@ def get_team_shooting_stats(team_id: UUID, db: Session):
     if not stats:
         return {
             "fgm": 0.0, "fga": 0.0, "fg_pct": 0.0,
-            "two_pm": 0.0, "two_pa": 0.0, "twop_pct": 0.0,
-            "three_pm": 0.0, "three_pa": 0.0, "threep_pct": 0.0,
+            "twopm": 0.0, "twopa": 0.0, "twop_pct": 0.0,
+            "threepm": 0.0, "threepa": 0.0, "threep_pct": 0.0,
             "ftm": 0.0, "fta": 0.0, "ft_pct": 0.0,
             "efg_pct": 0.0, "ts_pct": 0.0
         }
