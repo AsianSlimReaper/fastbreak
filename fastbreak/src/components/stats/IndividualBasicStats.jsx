@@ -4,6 +4,7 @@ import'./IndividualBasicStats.css';
 function IndividualBasicStats({ stats}){
     return(
         <div className='individual-basic-stats-table'>
+            <h2>Individual</h2>
             <table>
                 <thead>
                     <tr>

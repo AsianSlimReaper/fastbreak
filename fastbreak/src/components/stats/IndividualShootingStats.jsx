@@ -4,6 +4,7 @@ import './IndividualShootingStats.css'
 function IndividualShootingStats({stats}){
     return(
         <div className='individual-shooting-stats-table'>
+            <h2>Individual</h2>
             <table>
                 <thead>
                     <tr>
@@ -37,18 +38,18 @@ function IndividualShootingStats({stats}){
                             <td>{player.user_name}</td>
                             <td>{player.fgm}</td>
                             <td>{player.fga}</td>
-                            <td>{player.fg_pct}</td>
+                            <td>{player.fg_pct}%</td>
                             <td>{player.twopm}</td>
                             <td>{player.twopa}</td>
-                            <td>{player.twop_pct}</td>
+                            <td>{player.twop_pct}%</td>
                             <td>{player.threepm}</td>
                             <td>{player.threepa}</td>
-                            <td>{player.threep_pct}</td>
+                            <td>{player.threep_pct}%</td>
                             <td>{player.ftm}</td>
                             <td>{player.fta}</td>
-                            <td>{player.ft_pct}</td>
-                            <td>{player.efg_pct}</td>
-                            <td>{player.ts_pct}</td>
+                            <td>{player.ft_pct}%</td>
+                            <td>{player.efg_pct}%</td>
+                            <td>{player.ts_pct}%</td>
                         </tr>
                     ))
                 )}

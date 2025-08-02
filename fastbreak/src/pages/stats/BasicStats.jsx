@@ -69,8 +69,12 @@ function BasicStats() {
                 {currentTeam ? (
                     <>
                         <StatsNav />
-                        <IndividualBasicStats stats={individualStats} />
-                        <TeamBasicStats stats={teamStats}/>
+                        <div className='individual-basic-stats-wrapper'>
+                            <IndividualBasicStats stats={individualStats} />
+                        </div>
+                        <div className='team-basic-stats-wrapper'>
+                            <TeamBasicStats stats={teamStats}/>
+                        </div>
                     </>
                 ) : (
                     <Loader />

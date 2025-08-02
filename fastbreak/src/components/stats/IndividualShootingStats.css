@@ -1,0 +1,49 @@
+.individual-shooting-stats-table {
+    padding: 2rem;
+    border-radius: 12px;
+    overflow-x: auto;
+}
+
+.individual-shooting-stats-table h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    text-align: left;
+    color: var(--muted-colour);
+}
+
+.individual-shooting-stats-table table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+.individual-shooting-stats-table th,
+.individual-shooting-stats-table td {
+    padding: 0.75rem;
+    text-align: center;
+    border-bottom: 1px solid var(--accent-colour);
+}
+
+.individual-shooting-stats-table th {
+    background-color: var(--background-colour);
+    color: var(--text-colour);
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.individual-shooting-stats-table tbody tr:nth-child(even) {
+    background-color: var(--background-colour);
+}
+
+.individual-shooting-stats-table tbody tr:hover {
+    background-color: var(--background-colour);
+}
+
+.individual-shooting-stats-table td[colspan="15"] {
+    padding: 1rem;
+    color: var(--muted-colour);
+    font-style: italic;
+    background-color: var(--background-colour);
+}

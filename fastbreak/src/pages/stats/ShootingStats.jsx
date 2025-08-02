@@ -1,4 +1,4 @@
-import React, {use, useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import "./ShootingStats.css"
 import {useParams} from "react-router-dom";
 import {getIndividualShootingStats, getTeamShootingStats} from "../../services/statsAPI.js";
@@ -6,6 +6,7 @@ import MainLayout from "../../components/main/MainLayout.jsx";
 import StatsNav from "../../components/stats/StatsNav.jsx";
 import Loader from "../../components/universal/Loader.jsx";
 import IndividualShootingStats from "../../components/stats/IndividualShootingStats.jsx";
+import TeamShootingStats from "../../components/stats/TeamShootingStats.jsx";
 
 function ShootingStats(){
     const token = localStorage.getItem("access_token");
@@ -29,7 +30,7 @@ function ShootingStats(){
         "efg_pct": 0.0,
         "ts_pct": 0.0
     })
-    const [IndividualStats, setIndividualStats] = useState([])
+    const [individualStats, setIndividualStats] = useState([])
 
     useEffect(() => {
         const storedTeams = JSON.parse(localStorage.getItem("teams"));
@@ -67,7 +68,8 @@ function ShootingStats(){
                     {currentTeam ? (
                         <>
                             <StatsNav />
-                            <IndividualShootingStats stats={IndividualStats}/>
+                            <IndividualShootingStats stats={individualStats}/>
+                            <TeamShootingStats stats={teamStats}/>
                         </>
                     ) : (
                         <Loader />

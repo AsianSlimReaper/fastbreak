@@ -15,6 +15,7 @@ function Login() {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const token = localStorage.getItem('access_token');
@@ -24,6 +25,7 @@ function Login() {
     }, []);
 
     const handleLogin = async () => {
+        setLoading(true);
         try {
             const token = await Token(email, password);
             const user = await GetUser(token.access_token);
@@ -38,7 +40,13 @@ function Login() {
             navigate('/teams');
         } catch (error) {
             console.error("Login failed:", error);
-            alert("Login failed: Invalid email or password.");
+            if (error.response && error.response.status === 401) {
+                alert("Login failed: Invalid email or password.");
+            } else {
+                alert("Something went wrong. Please try again.");
+            }
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -70,9 +78,16 @@ function Login() {
                             />
                         </div>
                         <div className='login-buttons'>
-                            <ButtonComponent onClick={handleLogin}>Login</ButtonComponent>
+                            <ButtonComponent
+                                type="submit"
+                                disabled={!email || !password || loading}
+                            >
+                                {loading ? "Logging in..." : "Login"}
+                            </ButtonComponent>
                             <p>Don't Have An Account?</p>
-                            <ButtonComponent onClick={handleRegisterNavigate}>Register</ButtonComponent>
+                            <ButtonComponent onClick={handleRegisterNavigate}>
+                                Register
+                            </ButtonComponent>
                         </div>
                     </div>
                 </form>

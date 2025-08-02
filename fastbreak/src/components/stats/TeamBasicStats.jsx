@@ -1,9 +1,10 @@
 import React from "react";
-import './IndividualBasicStats.css'
+import './TeamBasicStats.css'
 
-function IndividualBasicStats({ stats }) {
+function TeamBasicStats({ stats }) {
     return(
-        <div className='individual-basic-stats-table'>
+        <div className='team-basic-stats-table'>
+            <h2>Team</h2>
             <table>
                 <thead>
                     <tr>
@@ -46,4 +47,4 @@ function IndividualBasicStats({ stats }) {
     )
 }
 
-export default IndividualBasicStats
+export default TeamBasicStats

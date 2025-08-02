@@ -1,8 +1,8 @@
-import React, {useEffect, useState} from "react";
-import {useNavigate} from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import MainNav from "../../components/main/MainNav.jsx";
 import FloatingInput from "../../components/universal/FloatingInput.jsx";
-import {CreateTeam, JoinTeam} from "../../services/teamsAPI.js";
+import { CreateTeam, JoinTeam } from "../../services/teamsAPI.js";
 import ButtonComponent from "../../components/universal/ButtonComponent.jsx";
 import './AddTeam.css';
 
@@ -18,12 +18,21 @@ function AddTeam() {
     const [position, setPosition] = useState('');
     const [teamId, setTeamId] = useState('');
 
+    const [creatingTeam, setCreatingTeam] = useState(false);
+    const [joiningTeam, setJoiningTeam] = useState(false);
+
     const handleCreateTeam = async () => {
         if (!teamName.trim()) {
             alert("Please enter a team name.");
             return;
         }
 
+        if (!user || !token) {
+            alert("User not authenticated.");
+            return;
+        }
+
+        setCreatingTeam(true);
         try {
             const new_team = await CreateTeam(teamName, token);
             const new_membership = await JoinTeam(new_team.id, user.id, 'coach', token);
@@ -39,6 +48,8 @@ function AddTeam() {
         } catch (error) {
             console.error("Error creating team:", error);
             alert("Failed to create team. Please try again.");
+        } finally {
+            setCreatingTeam(false);
         }
     };
 
@@ -48,6 +59,12 @@ function AddTeam() {
             return;
         }
 
+        if (!user || !token) {
+            alert("User not authenticated.");
+            return;
+        }
+
+        setJoiningTeam(true);
         try {
             const new_membership = await JoinTeam(teamId, user.id, 'player', position, jerseyNumber, token);
             const updatedTeams = [...teams, new_membership];
@@ -63,23 +80,22 @@ function AddTeam() {
         } catch (error) {
             console.error("Error joining team:", error);
             alert("Failed to join team. Please check the Team ID and try again.");
+        } finally {
+            setJoiningTeam(false);
         }
     };
 
     useEffect(() => {
-        async function fetchUserAndTeams() {
-            try {
-                const userData = JSON.parse(localStorage.getItem('user'));
-                setUser(userData);
+        try {
+            const userData = JSON.parse(localStorage.getItem('user'));
+            if (userData) setUser(userData);
 
-                const teamMembershipsData = JSON.parse(localStorage.getItem('teams')) || [];
-                setTeams(teamMembershipsData);
-            } catch (error) {
-                console.error("Failed to fetch user or teams:", error);
-            }
+            const teamMembershipsData = JSON.parse(localStorage.getItem('teams')) || [];
+            setTeams(teamMembershipsData);
+        } catch (error) {
+            console.error("Failed to fetch user or teams:", error);
         }
-        fetchUserAndTeams();
-    }, [token]);
+    }, []);
 
     return (
         <main>
@@ -109,9 +125,15 @@ function AddTeam() {
                         onChange={(e) => setJerseyNumber(e.target.value)}
                     />
                     <div className='add-team-button-wrapper'>
-                        <ButtonComponent type='submit'>Join Team</ButtonComponent>
+                        <ButtonComponent
+                            type='submit'
+                            disabled={!teamId || !position || !jerseyNumber || joiningTeam}
+                        >
+                            {joiningTeam ? "Joining..." : "Join Team"}
+                        </ButtonComponent>
                     </div>
                 </form>
+
                 <form onSubmit={(e) => { e.preventDefault(); handleCreateTeam(); }} className='create-team-form'>
                     <h2>Create Team</h2>
                     <FloatingInput
@@ -122,10 +144,15 @@ function AddTeam() {
                         onChange={(e) => setTeamName(e.target.value)}
                     />
                     <div className='add-team-button-wrapper'>
-                        <ButtonComponent type='submit'>Create Team</ButtonComponent>
+                        <ButtonComponent
+                            type='submit'
+                            disabled={!teamName || creatingTeam}
+                        >
+                            {creatingTeam ? "Creating..." : "Create Team"}
+                        </ButtonComponent>
                     </div>
                 </form>
-                </div>
+            </div>
         </main>
     );
 }
