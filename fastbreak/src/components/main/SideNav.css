@@ -2,7 +2,8 @@
     padding-top: 2.5rem;
     width: 250px;
     display: flex;
-    height:90vh;
+    top: 10vh;
+    height: calc(100vh - 10vh);
     position:sticky;
     flex-direction: column;
     justify-content: flex-start;

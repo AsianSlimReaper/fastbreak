@@ -1,13 +1,15 @@
-.main-layout {
-    display: flex;
-    flex-direction: row;
-}
+    .main-layout {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+    }
 
-.side-nav-wrapper{
-    width: 250px
-}
+    .side-nav-wrapper {
+        width: 250px;
+    }
 
-.main-content {
-    flex: 1;
-    background-color: var(--background-colour);
-}
+    .main-content {
+        flex: 1;
+        background-color: var(--background-colour);
+        height:100%;
+    }

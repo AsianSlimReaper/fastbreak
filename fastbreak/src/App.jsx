@@ -13,6 +13,7 @@ import Dashboard from "./pages/dashboard/dashboard.jsx";
 import AddTeam from "./pages/teams/addTeam.jsx";
 import BasicStats from "./pages/stats/BasicStats.jsx";
 import ShootingStats from "./pages/stats/ShootingStats.jsx";
+import Profile from "./pages/settings/profile.jsx";
 
 function App() {
     return (
@@ -30,6 +31,7 @@ function App() {
                 <Route path = "/add-team" element = {<AddTeam/>}/>
                 <Route path = "/stats/basic/:teamId" element = {<BasicStats/>}/>
                 <Route path = "/stats/shooting/:teamId" element = {<ShootingStats/>}/>
+                <Route path = "/profile" element={<Profile/>}/>
             </Routes>
         </AppLayout>
     );
