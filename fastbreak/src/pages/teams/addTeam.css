@@ -34,4 +34,29 @@
 	justify-content: flex-end;
 }
 
+.add-team-select-position {
+    display: flex;
+    flex-direction: row;
+	justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 1rem;
+    gap: 1rem; /* Optional spacing between label and select */
+}
+
+.add-team-select-position label {
+    font-weight: 500;
+    white-space: nowrap;
+    min-width: 80px; /* Fixed width or adjust as needed */
+}
+
+.add-team-select-position select {
+    flex-grow: 1;
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid var(--accent-colour);
+    border-radius: 4px;
+    background-color: var(--primary-colour);
+    color: var(--text-colour);
+}
+
 

@@ -35,7 +35,7 @@ function AddTeam() {
         setCreatingTeam(true);
         try {
             const new_team = await CreateTeam(teamName, token);
-            const new_membership = await JoinTeam(new_team.id, user.id, 'coach', token);
+            const new_membership = await JoinTeam(new_team.id, user.id, 'coach', null,null,token);
 
             const updatedTeams = [...teams, new_membership];
             setTeams(updatedTeams);
@@ -111,19 +111,26 @@ function AddTeam() {
                         onChange={(e) => setTeamId(e.target.value)}
                     />
                     <FloatingInput
-                        label='Position'
-                        id='position'
-                        type='text'
-                        value={position}
-                        onChange={(e) => setPosition(e.target.value)}
-                    />
-                    <FloatingInput
                         label='Jersey Number'
                         id='jerseyNumber'
                         type='number'
                         value={jerseyNumber}
                         onChange={(e) => setJerseyNumber(e.target.value)}
                     />
+                    <div className="add-team-select-position">
+                        <label htmlFor="position">Position</label>
+                        <select
+                            id="position"
+                            value={position}
+                            onChange={(e) => setPosition(e.target.value)}
+                            required
+                        >
+                            <option value="" disabled>Select position</option>
+                            <option value="guard">Guard</option>
+                            <option value="forward">Forward</option>
+                            <option value="big">Big</option>
+                        </select>
+                        </div>
                     <div className='add-team-button-wrapper'>
                         <ButtonComponent
                             type='submit'

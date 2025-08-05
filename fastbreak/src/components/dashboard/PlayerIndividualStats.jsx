@@ -1,40 +1,51 @@
 import React from "react";
+import PlayerAvatar from "../universal/PlayerAvatar.jsx";
 import './PlayerIndividualStats.css'
 
-function DashboardPlayerIndividualStats({DashboardData}) {
-	const ppg = DashboardData?.individual_stats?.ppg || 0;
-	const apg = DashboardData?.individual_stats?.apg || 0;
-	const rpg = DashboardData?.individual_stats?.rpg || 0;
-	const spg = DashboardData?.individual_stats?.spg || 0;
-	const bpg = DashboardData?.individual_stats?.bpg || 0;
+function DashboardPlayerIndividualStats({DashboardData,user_name}) {
+    const ppg = DashboardData?.individual_stats?.ppg || 0;
+    const apg = DashboardData?.individual_stats?.apg || 0;
+    const rpg = DashboardData?.individual_stats?.rpg || 0;
+    const spg = DashboardData?.individual_stats?.spg || 0;
+    const bpg = DashboardData?.individual_stats?.bpg || 0;
 
-	return(
-		<>
-			<div className='dashboard-individual-player-stats-grid'>
-				<div className='dashboard-individual-player-stats-item'>
-					<h3>Points Per Game (PPG)</h3>
-					<p>{ppg.toFixed(2)}</p>
-				</div>
-				<div className='dashboard-individual-player-stats-item'>
-					<h3>Assists Per Game (APG)</h3>
-					<p>{apg.toFixed(2)}</p>
-				</div>
-				<div className='dashboard-individual-player-stats-item'>
-					<h3>Rebounds Per Game (RPG)</h3>
-					<p>{rpg.toFixed(2)}</p>
-				</div>
-				<div className='dashboard-individual-player-stats-item'>
-					<h3>Steals Per Game (SPG)</h3>
-					<p>{spg.toFixed(2)}</p>
-				</div>
-				<div className='dashboard-individual-player-stats-item'
-					style={{ gridColumn: "1 / 3" }}>
-					<h3>Blocks Per Game (BPG)</h3>
-					<p>{bpg.toFixed(2)}</p>
-				</div>
-			</div>
-		</>
-	)
+    return(
+        <>
+        <div className='dashboard-player-individual-stats-container'>
+            <div className='dashboard-player-individual-stats-header'>
+                <div className='dashboard-player-individual-stats-avatar'>
+                    <PlayerAvatar name={user_name}/>
+                </div>
+                <h2>{user_name}</h2>
+            </div>
+            <div className='dashboard-player-individual-stats'>
+                <div className='stats-row'>
+                    <div className='stat-item'><span className='stat-label'>PPG:</span>
+                        <span className='stat-value'>{ppg.toFixed(1)}</span>
+                    </div>
+                    <div className='stat-item'>
+                        <span className='stat-label'>APG:</span>
+                        <span className='stat-value'>{apg.toFixed(1)}</span>
+                    </div>
+                    <div className='stat-item'>
+                        <span className='stat-label'>RPG:</span>
+                        <span className='stat-value'>{rpg.toFixed(1)}</span>
+                    </div>
+                </div>
+                <div className='stats-row staggered'>
+                    <div className='stat-item'>
+                        <span className='stat-label'>SPG:</span>
+                        <span className='stat-value'>{spg.toFixed(1)}</span>
+                    </div>
+                    <div className='stat-item'>
+                        <span className='stat-label'>BPG:</span>
+                        <span className='stat-value'>{bpg.toFixed(1)}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+</>
+)
 }
 
 export default DashboardPlayerIndividualStats

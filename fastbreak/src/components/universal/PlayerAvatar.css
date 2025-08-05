@@ -1,0 +1,19 @@
+.player-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: var(--accent-colour);
+    color: var(--background-colour);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 100%;
+    text-transform: uppercase;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
+.player-avatar span{
+	font-size: 3em;
+    line-height: 1;
+}
