@@ -64,7 +64,7 @@ function BasicStats() {
     }, [currentTeam, token]);
 
     return (
-        <MainLayout teams={teams} currentTeam={currentTeam}>
+        <MainLayout teams={teams}>
             <div className="basic-stats-content">
                 {currentTeam ? (
                     <>

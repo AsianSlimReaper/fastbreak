@@ -3,10 +3,10 @@ import MainNav from "../main/MainNav.jsx";
 import SideNav from "../main/SideNav.jsx";
 import "./MainLayout.css";
 
-function MainLayout({ children, teams = [], setCurrentTeam = () => {} }) {
+function MainLayout({ children, teams = [] }) {
 	return (
 		<>
-			<MainNav teams={teams} setCurrentTeam={setCurrentTeam} />
+			<MainNav teams={teams} />
 
 			<div className="main-layout">
 				<div className="side-nav-wrapper">

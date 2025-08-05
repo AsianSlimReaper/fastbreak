@@ -14,6 +14,8 @@ import AddTeam from "./pages/teams/addTeam.jsx";
 import BasicStats from "./pages/stats/BasicStats.jsx";
 import ShootingStats from "./pages/stats/ShootingStats.jsx";
 import Profile from "./pages/settings/profile.jsx";
+import ProfileList from "./pages/playerProfiles/ProfileList.jsx";
+import PlayerProfile from "./pages/playerProfiles/PlayerProfile.jsx";
 
 function App() {
     return (
@@ -32,6 +34,8 @@ function App() {
                 <Route path = "/stats/basic/:teamId" element = {<BasicStats/>}/>
                 <Route path = "/stats/shooting/:teamId" element = {<ShootingStats/>}/>
                 <Route path = "/profile" element={<Profile/>}/>
+                <Route path = "/player-profile/team/:teamId" element={<ProfileList/>}/>
+                <Route path = "/player-profile/player/:teamId/:userId" element={<PlayerProfile/>}/>
             </Routes>
         </AppLayout>
     );

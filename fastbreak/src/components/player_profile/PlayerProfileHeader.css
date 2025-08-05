@@ -1,0 +1,50 @@
+.player-profile-header{
+	display: flex;
+	flex-direction: column;
+	background-color: var(--secondary-colour);
+	box-shadow: var(--box-shadow);
+	height:100%;
+	padding:2rem
+}
+
+.player-profile-header-avatar{
+	height:160px;
+	width:160px;
+}
+
+.player-profile-player-info{
+	display:flex;
+	flex-direction: row;
+	align-items:center;
+	gap:1rem;
+}
+
+.player-profile-header-summary .player-profile-jersey-number{
+	color: var(--muted-colour);
+	font-size:1.5rem;
+}
+
+.player-profile-header-summary .player-profile-player-name{
+	color: var(--text-colour);
+	font-size:3rem;
+	font-weight: bold;
+}
+
+.player-profile-header-summary p{
+	color: var(--muted-colour);
+	font-size:1.5rem;
+}
+
+.player-profile-header-stats{
+	display:grid;
+	grid-template-columns: repeat(5,1fr);
+	align-items: center;
+	margin-top:3rem;
+}
+
+.player-profile-header-stats p{
+	color: var(--text-colour);
+	font-size: 2rem;
+	text-align:center;
+	font-weight: bold;
+}

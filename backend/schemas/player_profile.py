@@ -15,6 +15,7 @@ class PlayerSummary(BaseModel):
     }
 
 class PlayerProfileStats(BaseModel):
+    mins:float
     ppg: float
     apg: float
     rpg: float
@@ -25,6 +26,8 @@ class PlayerProfileStats(BaseModel):
     ft_pct: float
     ts_pct: float
     efg_pct: float
+    tov: float
+    plus_minus: float
 
     model_config = {
         "from_attributes": True

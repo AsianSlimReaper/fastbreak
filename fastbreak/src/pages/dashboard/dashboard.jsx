@@ -59,7 +59,7 @@ function Dashboard() {
 	}, [teamId, token]);
 
 	return (
-		<MainLayout teams={teams} currentTeam={currentTeam}>
+		<MainLayout teams={teams}>
 			<div className="dashboard-grid">
 				{dashboardData ? (
 					<>

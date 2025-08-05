@@ -63,7 +63,7 @@ function ShootingStats(){
 
     return(
         <>
-            <MainLayout teams={teams} setCurrentTeam={setCurrentTeam}>
+            <MainLayout teams={teams}>
                 <div className="shooting-stats-content">
                     {currentTeam ? (
                         <>

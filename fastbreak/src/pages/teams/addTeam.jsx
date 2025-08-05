@@ -11,7 +11,6 @@ function AddTeam() {
     const token = localStorage.getItem('access_token');
     const [user, setUser] = useState(null);
     const [teams, setTeams] = useState([]);
-    const [currentTeam, setCurrentTeam] = useState(null);
 
     const [teamName, setTeamName] = useState('');
     const [jerseyNumber, setJerseyNumber] = useState('');
@@ -99,7 +98,7 @@ function AddTeam() {
 
     return (
         <main>
-            <MainNav teams={teams} setCurrentTeam={setCurrentTeam} />
+            <MainNav teams={teams}/>
             <div className='add-team-forms'>
                 <form onSubmit={(e) => { e.preventDefault(); handleJoinTeam(); }} className='join-team-form'>
                     <h2>Join Team</h2>

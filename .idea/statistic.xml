@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Statistic">
+    <option name="fileTypesIncluded" value="py;css;js;jsx" />
+    <option name="excludedDirectories">
+      <list>
+        <option value="$PROJECT_DIR$/.idea" />
+        <option value="$PROJECT_DIR$/backend/.idea" />
+        <option value="$PROJECT_DIR$/backend/.venv" />
+        <option value="$PROJECT_DIR$/backend/__pycache__" />
+      </list>
+    </option>
+  </component>
+</project>

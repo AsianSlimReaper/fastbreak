@@ -12,7 +12,6 @@ function Teams(){
     const token = localStorage.getItem('access_token')
     const [user, setUser] = useState(null);
     const [teams, setTeams] = useState([]);
-    const [currentTeam, setCurrentTeam] = useState(null);
 
     const navigateToAddTeam = () => {
         navigate('/add-team');
@@ -38,7 +37,7 @@ function Teams(){
 
     return(
         <>
-            <MainNav teams={teams} setCurrentTeam={setCurrentTeam}/>
+            <MainNav teams={teams}/>
             <div className='teams-welcome-text'>
                 <h1>Welcome Back <br/>{user?.name}</h1>
                 <p>Please navigate to a team or add a new team</p>

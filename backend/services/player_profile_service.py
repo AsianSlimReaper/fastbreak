@@ -48,7 +48,7 @@ def get_player_card_data(db: Session, team_id: UUID):
             "position": membership.position,
             })
 
-    return {"players": player_cards}
+    return player_cards
 
 def get_player_profile(db:Session, team_id:UUID, user_id: UUID):
     membership = db.execute(
@@ -87,7 +87,7 @@ def get_player_profile(db:Session, team_id:UUID, user_id: UUID):
 
     total_points = total_assists = total_steals = total_blocks = total_rebounds = 0
     total_fga = total_fgm = total_threepa = total_threepm = total_ftm = total_fta = 0
-    total_plus_minus = total_turnovers = 0
+    total_plus_minus = total_turnovers = total_minutes =0
     num_games = len(stats)
 
     for stat in stats:
@@ -104,8 +104,10 @@ def get_player_profile(db:Session, team_id:UUID, user_id: UUID):
         total_threepm += stat.threepm
         total_ftm += stat.ftm
         total_fta += stat.fta
+        total_minutes += stat.mins
 
     player_stats ={
+        "mins":round(total_minutes,1) if num_games else 0.0,
         "ppg": round(total_points / num_games, 1) if num_games else 0.0,
         "apg": round(total_assists / num_games, 1) if num_games else 0.0,
         "rpg": round(total_rebounds / num_games, 1) if num_games else 0.0,
@@ -116,6 +118,8 @@ def get_player_profile(db:Session, team_id:UUID, user_id: UUID):
         "ft_pct": round(calculate_ft_percent(total_ftm, total_fta) * 100, 1) if num_games else 0.0,
         "ts_pct": round(calculate_ts_percent(total_points,total_fgm,total_fta) * 100, 1) if num_games else 0.0,
         "efg_pct": round(calculate_efg_percent(total_fgm,total_threepm,total_fga) * 100, 1) if num_games else 0.0,
+        "plus_minus":round(total_plus_minus/num_games,1) if num_games else 0.0,
+        "tov":round(total_turnovers/num_games,1) if num_games else 0.0
     }
 
     games = db.execute(
@@ -141,7 +145,7 @@ def get_player_profile(db:Session, team_id:UUID, user_id: UUID):
         })
 
     return({
-        "player_stats": player_stats,
+        "stats": player_stats,
         "recent_games": recent_games,
-        "membership_data": membership_data
+        "player": membership_data
     })
