@@ -29,7 +29,6 @@ function Profile() {
     return(
         <div className='user-profile-container'>
             <MainNav teams={teams} setCurrentTeam={null}/>
-
         </div>
     )
 }
