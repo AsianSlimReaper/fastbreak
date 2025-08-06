@@ -14,8 +14,14 @@ def get_game_result_and_scores(box_scores):
     result = game_result(team_pts, opp_pts)
     return team_pts, opp_pts, result
 
-def get_game_box_scores(game_id: UUID, db: Session):
-    return db.execute(select(BoxScore).where(BoxScore.game_id == game_id)).scalars().all()
+def get_game_box_scores(game_id: UUID, user_id:UUID,team_id:UUID, db: Session):
+    return db.execute(
+        select(BoxScore).
+        where(BoxScore.game_id == game_id,
+              BoxScore.user_id == user_id,
+              BoxScore.team_id == team_id,
+              BoxScore.is_opponent== False)
+                      ).scalar_one_or_none()
 
 
 def get_player_card_data(db: Session, team_id: UUID):
@@ -133,15 +139,26 @@ def get_player_profile(db:Session, team_id:UUID, user_id: UUID):
     recent_games = []
 
     for game in games:
-        box_scores = get_game_box_scores(game.id, db)
-        team_score, opponent_score, result = get_game_result_and_scores(box_scores)
+        box_score = get_game_box_scores(game.id, user_id,team_id,db)
+        pts = calculate_pts(box_score.twopm,box_score.threepm,box_score.ftm)
+        reb = calculate_rebounds(box_score.oreb, box_score.dreb)
+        fgm = calculate_fgm(box_score.twopm,box_score.threepm)
+        fga = calculate_fga(box_score.twopa,box_score.threepa)
+        efg_pct = calculate_efg_percent(fgm,box_score.threepm,fga)
+        eff = calculate_efficiency(
+            pts,reb,box_score.ast,box_score.stl,
+            box_score.blk,fga,fgm,box_score.fta,
+            box_score.ftm,box_score.tov)
 
         recent_games.append({
             "date": game.date,
             "opponent": game.opponent,
-            "team_score": team_score,
-            "opponent_score": opponent_score,
-            "result": result
+            "pts": pts,
+            "ast": box_score.ast,
+            "reb": reb,
+            "efg_pct": efg_pct,
+            "plus_minus" : box_score.plus_minus,
+            "efficiency" : eff
         })
 
     return({

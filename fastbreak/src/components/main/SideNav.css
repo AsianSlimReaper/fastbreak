@@ -3,7 +3,7 @@
     width: 250px;
     display: flex;
     top: 10vh;
-    height: calc(100vh - 10vh);
+    height: 100%;
     position:sticky;
     flex-direction: column;
     justify-content: flex-start;
@@ -13,7 +13,7 @@
 }
 
 .side-nav button{
-    position: relative;
+    position: sticky;
     background: none;
     border: none;
     color: var(--text-colour);

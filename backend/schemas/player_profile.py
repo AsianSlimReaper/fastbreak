@@ -36,9 +36,12 @@ class PlayerProfileStats(BaseModel):
 class PlayerProfileRecentGames(BaseModel):
     opponent: str
     date: date
-    team_score: int
-    opponent_score: int
-    result: Literal['win', 'loss', 'draw']
+    pts: int
+    ast: int
+    reb: int
+    efg_pct: float
+    plus_minus: int
+    efficiency: int
 
     model_config = {
         "from_attributes": True
