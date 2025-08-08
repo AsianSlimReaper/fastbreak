@@ -1,7 +1,7 @@
 import uuid
 from datetime import date
 from sqlalchemy import (
-    String, Text, Integer, ForeignKey, UniqueConstraint, Boolean, Date
+    String, Text, Integer, ForeignKey, UniqueConstraint, Boolean, Date,Index, Float
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship, DeclarativeBase
 from sqlalchemy.dialects.postgresql import UUID
@@ -21,7 +21,6 @@ class User(Base):
 
     memberships = relationship("TeamMembership", back_populates="user")
     box_scores = relationship("BoxScore", back_populates="user")
-    comments = relationship("Comment", back_populates="user")
     play_by_plays = relationship("PlayByPlay", back_populates="user")
     game_participations = relationship("GameParticipant", back_populates="user")
 
@@ -91,7 +90,7 @@ class BoxScore(Base):
 
     is_opponent: Mapped[bool] = mapped_column(Boolean, default=False)
 
-    mins: Mapped[int] = mapped_column(Integer, default=0)
+    mins: Mapped[float] = mapped_column(Float, default=0)
     ast: Mapped[int] = mapped_column(Integer, default=0)
     oreb: Mapped[int] = mapped_column(Integer, default=0)
     dreb: Mapped[int] = mapped_column(Integer, default=0)
@@ -116,19 +115,21 @@ class Comment(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     game_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey('games.id'), nullable=False)
-    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey('users.id'), nullable=False)
     timestamp_seconds: Mapped[int] = mapped_column(Integer)
     comment_text: Mapped[str] = mapped_column(Text)
 
     game = relationship("Game", back_populates="comments")
-    user = relationship("User", back_populates="comments")
 
 
 class PlayByPlay(Base):
     __tablename__ = "play_by_play"
 
+    __table_args__ = (
+        Index("ix_play_by_play_game_time", "game_id", "timestamp_seconds"),
+    )
+
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    game_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey('games.id'), nullable=False)
+    game_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey('games.id'), nullable=False,index=True)
     timestamp_seconds: Mapped[int] = mapped_column(Integer)
     user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey('users.id'), nullable=False)
     event_type: Mapped[str] = mapped_column(Text)
@@ -136,4 +137,6 @@ class PlayByPlay(Base):
 
     game = relationship("Game", back_populates="play_by_plays")
     user = relationship("User", back_populates="play_by_plays")
+
+
 

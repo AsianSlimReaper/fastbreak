@@ -49,8 +49,8 @@ function Home() {
                             <img src={placeholder} alt='View Film' className='view-film-icon'/>
                         </div>
                         <div className='solution-icon'>
-                            <h3>Add BasicStats And Analysis</h3>
-                            <img src={placeholder} alt='Add BasicStats And Analysis' className='add-stats-icon'/>
+                            <h3>Add Stats And Analysis</h3>
+                            <img src={placeholder} alt='Add Stats And Analysis' className='add-stats-icon'/>
                         </div>
                         <div className='solution-icon'>
                             <h3>Export</h3>
