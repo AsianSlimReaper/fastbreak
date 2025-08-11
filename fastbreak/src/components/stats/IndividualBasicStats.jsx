@@ -14,6 +14,8 @@ function IndividualBasicStats({ stats}){
                         <th>PTS</th>
                         <th>AST</th>
                         <th>REB</th>
+                        <th>OREB</th>
+                        <th>DREB</th>
                         <th>STL</th>
                         <th>BLK</th>
                         <th>TOV</th>
@@ -38,6 +40,8 @@ function IndividualBasicStats({ stats}){
                             <td>{player.ppg}</td>
                             <td>{player.apg}</td>
                             <td>{player.rpg}</td>
+                            <td>{player.orpg}</td>
+                            <td>{player.drpg}</td>
                             <td>{player.spg}</td>
                             <td>{player.bpg}</td>
                             <td>{player.tpg}</td>

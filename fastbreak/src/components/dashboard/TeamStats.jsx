@@ -13,7 +13,7 @@ function DashboardTeamStats({  teamStats }) {
 	const netRtg = teamStats.net_rtg;
 
 	const netRtgStyle = {
-		color: netRtg > 0 ? "green" : netRtg < 0 ? "red" : "#A1A1AA"
+		color: netRtg > 0 ? "#18FF0A" : netRtg < 0 ? "#18FF0A" : "#8A8A8A"
 	};
 
 	return (
