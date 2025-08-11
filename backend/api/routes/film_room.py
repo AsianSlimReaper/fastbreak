@@ -38,7 +38,7 @@ def get_game_participants(game_id:UUID,db:Session = Depends(get_db)):
     return film_room_service.get_game_participants(db,game_id)
 
 @router.delete("/game-participants/{game_id}/{user_id}",response_model=str)
-def delete_game_participant(game_id,user_id,db:Session = Depends(get_db)):
+def delete_game_participant(game_id:UUID,user_id:UUID,db:Session = Depends(get_db)):
     return film_room_service.delete_participant(db,game_id,user_id)
 
 
@@ -78,11 +78,11 @@ def update_comment(comment:UpdateComment,db:Session = Depends(get_db)):
     return film_room_service.update_comment(db,comment)
 
 @router.delete("/comments/{comment_id}",response_model=str)
-def delete_comment(db: Session, comment_id: UUID):
+def delete_comment(comment_id: UUID,db: Session = Depends(get_db)):
     return film_room_service.delete_comment(db,comment_id)
 
 #PlayByPlay
-@router.post("play-by-plays",response_model=List[ReadPlayByPlay])
+@router.post("/play-by-plays",response_model=List[ReadPlayByPlay])
 def create_play_by_plays(pbp:List[CreatePlayByPlay],db:Session = Depends(get_db)):
     return film_room_service.create_play_by_plays(db,pbp)
 
@@ -90,6 +90,6 @@ def create_play_by_plays(pbp:List[CreatePlayByPlay],db:Session = Depends(get_db)
 def get_play_by_plays(game_id:UUID,db: Session = Depends(get_db)):
     return film_room_service.get_play_by_plays(db,game_id)
 
-@router.delete("/play-by-plays/{play_by_play_id}",response_model=str)
+@router.delete("/play-by-plays/{pbp_id}",response_model=str)
 def delete_play_by_play(pbp_id:UUID,db:Session = Depends(get_db)):
     return film_room_service.delete_play_by_play(db, pbp_id)
