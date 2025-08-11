@@ -1,0 +1,12 @@
+.basic-stats-content{
+	display:flex;
+	flex-direction: column;
+	height:90vh;
+	overflow: auto;
+}
+
+.basic-stats-wrapper{
+	margin-top:2rem;
+	margin-left: 2rem;
+	margin-right: 2rem;
+}

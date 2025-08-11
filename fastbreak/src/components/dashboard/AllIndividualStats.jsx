@@ -1,9 +1,9 @@
 import React from "react";
 import "./AllIndividualStats.css";
 
-function DashboardAllIndividualStats({ DashboardData }) {
-	const players = Array.isArray(DashboardData?.individual_stats)
-		? DashboardData.individual_stats
+function DashboardAllIndividualStats({ IndividualStats }) {
+	const players = Array.isArray(IndividualStats)
+		? IndividualStats
 		: [];
 
 	return (
@@ -29,7 +29,7 @@ function DashboardAllIndividualStats({ DashboardData }) {
 						</tr>
 					) : (
 						players.map((player) => (
-							<tr key={player.user_id}>
+							<tr key={player.name}>
 								<td>{player.name}</td>
 								<td>{player.ppg.toFixed(1)}</td>
 								<td>{player.apg.toFixed(1)}</td>

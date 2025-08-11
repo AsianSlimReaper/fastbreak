@@ -75,7 +75,7 @@ function Dashboard() {
 							{role === "player" ? (
 								<DashboardPlayerIndividualStats IndividualStats={dashboardData.individual_stats} user_name={user.name} />
 							) : (
-								<DashboardAllIndividualStats dashboardData={dashboardData} />
+								<DashboardAllIndividualStats IndividualStats={dashboardData.individual_stats} />
 							)}
 						</div>
 

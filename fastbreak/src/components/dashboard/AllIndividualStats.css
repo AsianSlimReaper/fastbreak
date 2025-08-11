@@ -1,36 +1,65 @@
 .dashboard-all-individual-stats-container{
-    background-color: var(--primary-colour);
-    padding: 1.5rem;
-    border: 1px solid var(--accent-colour);
-    border-radius: 15px;
-    height:100%;
+	background-color: var(--primary-colour);
+	padding: 1.2rem;
+	border: 1px solid var(--accent-colour);
+	border-radius: 15px;
+	height:100%;
+	overflow-y: auto;
 }
 
 .dashboard-all-individual-stats-container h3{
-    color: var(--muted-colour);
-    margin-bottom: 1rem;
+	color: var(--muted-colour);
+	background-color: var(--primary-colour);
+	top:0;
+	z-index: 20;
+	position:sticky;
 }
 
 .player-stats-table {
-  width: 100%;
-  table-layout: fixed;
-  border-collapse: collapse;
+	width: 100%;
+	table-layout: fixed;
+	border-collapse: collapse;
+}
+
+.player-stats-table th{
+	background-color: var(--primary-colour);
+	position:sticky;
+	top: 1.6rem;
+	z-index: 10;
 }
 
 .player-stats-table th,
 .player-stats-table td {
-  padding: 8px;
-  text-align: center;
-  border-bottom: 1px solid var(--accent-colour);
+	padding: 8px;
+	text-align: center;
+	border-bottom: 1px solid var(--accent-colour);
 }
 
 .player-stats-table th:nth-child(1),
 .player-stats-table td:nth-child(1) {
-  width: 40%;
-  text-align: left;
+	width: 40%;
+	text-align: left;
 }
 
 .player-stats-table th:nth-child(n+2),
 .player-stats-table td:nth-child(n+2) {
-  width: 12%;
+	width: 12%;
+}
+
+.dashboard-all-individual-stats-container::-webkit-scrollbar {
+  	width: 6px;
+}
+
+.dashboard-all-individual-stats-container::-webkit-scrollbar-track {
+  	background: transparent;
+}
+
+.dashboard-all-individual-stats-container::-webkit-scrollbar-thumb {
+  	background-color: var(--secondary-colour);
+  	border-radius: 10px;
+  	border: 3px solid transparent;
+}
+
+.dashboard-all-individual-stats-container::-webkit-scrollbar-button {
+  	display: none;
 }

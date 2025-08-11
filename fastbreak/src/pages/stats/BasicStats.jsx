@@ -66,14 +66,16 @@ function BasicStats() {
     return (
         <MainLayout teams={teams}>
             <div className="basic-stats-content">
-                {currentTeam ? (
+                {individualStats && teamStats ? (
                     <>
                         <StatsNav />
-                        <div className='individual-basic-stats-wrapper'>
-                            <IndividualBasicStats stats={individualStats} />
-                        </div>
-                        <div className='team-basic-stats-wrapper'>
-                            <TeamBasicStats stats={teamStats}/>
+                            <div className='basic-stats-wrapper'>
+                                <div className='individual-basic-stats-wrapper'>
+                                <IndividualBasicStats stats={individualStats} />
+                            </div>
+                            <div className='team-basic-stats-wrapper'>
+                                <TeamBasicStats stats={teamStats}/>
+                            </div>
                         </div>
                     </>
                 ) : (

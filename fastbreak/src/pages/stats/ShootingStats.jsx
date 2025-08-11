@@ -68,8 +68,10 @@ function ShootingStats(){
                     {currentTeam ? (
                         <>
                             <StatsNav />
-                            <IndividualShootingStats stats={individualStats}/>
-                            <TeamShootingStats stats={teamStats}/>
+                            <div className='shooting-stats-wrapper'>
+                                <IndividualShootingStats stats={individualStats}/>
+                                <TeamShootingStats stats={teamStats}/>
+                            </div>
                         </>
                     ) : (
                         <Loader />
