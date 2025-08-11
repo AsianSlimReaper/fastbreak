@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from backend.api.routes import user, teams, dashboard, stats, player_profile
+from backend.api.routes import user, teams, dashboard, stats, player_profile,film_room
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -9,6 +9,7 @@ app.include_router(teams.router)
 app.include_router(dashboard.router)
 app.include_router(stats.router)
 app.include_router(player_profile.router)
+app.include_router(film_room.router)
 
 app.add_middleware(
     CORSMiddleware,

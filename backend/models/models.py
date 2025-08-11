@@ -131,7 +131,8 @@ class PlayByPlay(Base):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     game_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey('games.id'), nullable=False,index=True)
     timestamp_seconds: Mapped[int] = mapped_column(Integer)
-    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey('users.id'), nullable=False)
+    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey('users.id'), nullable=True)
+    is_opponent: Mapped[bool] = mapped_column(Boolean, default=False)
     event_type: Mapped[str] = mapped_column(Text)
     description: Mapped[str] = mapped_column(Text)
 

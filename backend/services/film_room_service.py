@@ -1,362 +1,427 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-from backend.models.models import BoxScore, Game, User, GameParticipant, PlayByPlay, Comment
+from backend.models.models import BoxScore, Game, GameParticipant,Comment,PlayByPlay
 from fastapi import HTTPException
-from uuid import UUID
-from backend.schemas.film_room import NewGame, NewGameParticipant, NewBoxScore, NewComment, NewPlayByPlay, UpdateGame, \
-    UpdateBoxScore, UpdateComment
+from backend.schemas.film_room import *
 from backend.utils.stat_calculations import *
-from collections import defaultdict
+
+
+#helper functions
+
+def calculate_total_points(box_scores):
+    return sum(calculate_pts(box_score.twopm, box_score.threepm, box_score.ftm) for box_score in box_scores)
+
+
+def calculate_total_possessions(box_scores):
+    total_poss = 0
+    for box_score in box_scores:
+        fga = calculate_fga(box_score.twopa, box_score.threepa)
+        total_poss += calculate_possessions(fga, box_score.fta, box_score.oreb, box_score.tov)
+    return total_poss
+
+
+def get_game_result_and_scores(box_scores):
+    team_pts = calculate_total_points([box_score for box_score in box_scores if not box_score.is_opponent])
+    opp_pts = calculate_total_points([box_score for box_score in box_scores if box_score.is_opponent])
+    result = game_result(team_pts, opp_pts)
+    return team_pts, opp_pts, result
+
+
+def get_game_box_scores(game_id: UUID, db: Session):
+    return db.execute(select(BoxScore).where(BoxScore.game_id == game_id)).scalars().all()
+
+
+def try_commit_db(db: Session, model_instance):
+    try:
+        db.commit()
+        db.refresh(model_instance)
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+def not_found_error():
+    return HTTPException(status_code=404, detail="Not found")
+
+
+def create_model(db: Session, model_class, create_schema):
+    model_instance = model_class(**create_schema.model_dump())
+    db.add(model_instance)
+    return model_instance
+
+
+def update_fields(model, update_obj):
+    for field, value in update_obj.model_dump(exclude_unset=True).items():
+        setattr(model, field, value)
+
 
 def calculate_basic_box_score(box_score):
-    pts =calculate_pts(box_score.twopm,box_score.threepm,box_score.ftm)
-    reb =calculate_rebounds(box_score.oreb,box_score.dreb)
-    fgm = calculate_fgm(box_score.twopm,box_score.threepm)
-    fga = calculate_fga(box_score.twopa,box_score.threepa)
+    points = calculate_pts(box_score.twopm, box_score.threepm, box_score.ftm)
+    rebounds = calculate_rebounds(box_score.oreb, box_score.dreb)
+    efficiency = calculate_efficiency(points, rebounds, box_score.ast, box_score.stl,
+                                      box_score.blk, box_score.twopa + box_score.threepa,
+                                      box_score.twopm + box_score.threepm, box_score.dreb + box_score.fta,
+                                      box_score.oreb + box_score.ftm, box_score.dreb + box_score.tov)
     return ({
-        "mins":box_score.mins,
-        "pts":pts,
+        "mins": box_score.mins,
+        "pts": points,
         "ast": box_score.ast,
-        "reb": reb,
-        "oreb":box_score.oreb,
-        "dreb":box_score.dreb,
-        "stl":box_score.stl,
-        "blk":box_score.blk,
-        "tov":box_score.tov,
-        "fls":box_score.fls,
-        "plus_minus":box_score.plus_minus,
-        "efficiency":calculate_efficiency(pts,reb,box_score.ast,box_score.stl,
-                                         box_score.blk,fga,fgm,box_score.fta,
-                                         box_score.ftm,box_score.tov),
-
+        "reb": rebounds,
+        "oreb": box_score.oreb,
+        "dreb": box_score.dreb,
+        "stl": box_score.stl,
+        "blk": box_score.blk,
+        "tov": box_score.tov,
+        "fls": box_score.fls,
+        "eff": efficiency,
+        "plus_minus": box_score.plus_minus
     })
+
 
 def calculate_shooting_box_score(box_score):
-    pts = calculate_pts(box_score.twopm, box_score.threepm, box_score.ftm)
+    points = calculate_pts(box_score.twopm, box_score.threepm, box_score.ftm)
     fgm = calculate_fgm(box_score.twopm, box_score.threepm)
     fga = calculate_fga(box_score.twopa, box_score.threepa)
+    fg_pct = calculate_fg_percent(fgm, fga)
+    threep_pct = calculate_3p_percent(box_score.threepm, box_score.threepa)
+    ft_pct = calculate_ft_percent(box_score.ftm, box_score.fta)
+    efg_pct = calculate_efg_percent(fgm, box_score.threepm, fga)
+    ts_pct = calculate_ts_percent(points, fga, box_score.fta)
 
-    return({
+    return ({
         "fgm": fgm,
         "fga": fga,
-        "fg_pct": calculate_fg_percent(fgm, fga),
-        "three_pm": box_score.threepm,
-        "three_pa": box_score.threepa,
-        "threep_pct": calculate_3p_percent(box_score.threepm,box_score.threepa),
+        "fg_pct": fg_pct,
+        "threepm": box_score.threepm,
+        "threepa": box_score.threepa,
+        "threep_pct": threep_pct,
         "ftm": box_score.ftm,
         "fta": box_score.fta,
-        "ft_pct": calculate_ft_percent(box_score.ftm, box_score.fta),
-        "efg_pct":calculate_efg_percent(fgm,box_score.threepm,fga),
-        "ts_pct":calculate_ts_percent(pts,fga,box_score.fta)
+        "ft_pct": ft_pct,
+        "efg_pct": efg_pct,
+        "ts_pct": ts_pct
     })
 
 
-def create_new_game(db:Session, new_game:NewGame):
-    game = Game(
-        team_id=new_game.team_id,
-        date=new_game.date,
-        opponent=new_game.opponent,
-        video_url=new_game.video_url
-    )
+#Game Services
 
-    db.add(game)
-    db.commit()
-    db.refresh(game)
+def create_game(db: Session, new_game=CreateGame):
+    game = create_model(db, Game, new_game)
+    try_commit_db(db, game)
 
-def add_new_game_participant(db:Session,new_participant:NewGameParticipant):
-    participant = GameParticipant(
-        user_id=new_participant.user_id,
-        game_id=new_participant.game_id
-    )
+    return game
 
-    db.add(participant)
-    db.commit()
-    db.refresh(participant)
 
-def add_new_box_score(db:Session,new_box_score:NewBoxScore):
-    box_score = BoxScore(
-        game_id=new_box_score.game_id,
-        user_id=new_box_score.user_id,
-        team_id=new_box_score.team_id,
-        is_opponent=new_box_score.is_opponent if new_box_score.is_opponent else False,
-        mins=new_box_score.mins,
-        ast=new_box_score.ast,
-        oreb=new_box_score.oreb,
-        dreb=new_box_score.dreb,
-        stl=new_box_score.stl,
-        blk=new_box_score.blk,
-        tov=new_box_score.tov,
-        fls=new_box_score.fls,
-        twopm=new_box_score.twopm,
-        twopa=new_box_score.twopa,
-        threepm=new_box_score.threepm,
-        threepa=new_box_score.threepa,
-        ftm=new_box_score.ftm,
-        fta=new_box_score.fta,
-        plus_minus=new_box_score.plus_minus
-    )
-
-    db.add(box_score)
-    db.commit()
-    db.refresh(box_score)
-
-def add_new_comment(db:Session, new_comment:NewComment):
-    comment = Comment(
-        game_id=new_comment.game_id,
-        timestamp_seconds=new_comment.timestamp_seconds,
-        comment_text=new_comment.comment_text
-    )
-
-    db.add(comment)
-    db.commit()
-    db.refresh(comment)
-
-def add_new_play_by_play(db:Session, new_play_by_play:NewPlayByPlay):
-    play_by_play = PlayByPlay(
-        game_id=new_play_by_play.game_id,
-        user_id=new_play_by_play.user_id,
-        timestamp_seconds=new_play_by_play.timestamp_seconds,
-        event_type=new_play_by_play.event_type,
-        description=new_play_by_play.description
-    )
-
-    db.add(play_by_play)
-    db.commit()
-    db.refresh(play_by_play)
-
-def get_games_details(db:Session,team_id:UUID):
+def get_all_team_games(db: Session, team_id: UUID):
     games = db.execute(
-        select(Game).where(
-            Game.team_id == team_id
-        )).scalars().all()
+        select(Game)
+        .where(Game.team_id == team_id)
+        .order_by(Game.date.desc())
+    ).scalars().all()
 
-    return games
+    all_games = []
 
-def get_game_by_id(db:Session, game_id:UUID):
+    for game in games:
+        box_scores = get_game_box_scores(game.id, db)
+        team_score, opponent_score, result = get_game_result_and_scores(box_scores)
+
+        all_games.append({
+            "date": game.date,
+            "opponent": game.opponent,
+            "team_score": team_score,
+            "opponent_score": opponent_score,
+            "result": result
+        })
+
+    return all_games
+
+
+def get_game_details(db: Session, game_id: UUID):
     game = db.execute(
         select(Game)
         .where(Game.id == game_id)
     ).scalar_one_or_none()
 
+    if not game:
+        return not_found_error()
+
     return game
 
-def get_games_participants(db: Session, game_id: UUID):
-    participant_data = (
-        select(User.id, User.name)
-        .join(GameParticipant, User.id == GameParticipant.user_id)
+
+def update_game_details(db: Session, update_game: UpdateGame,game_id:UUID):
+    game = db.execute(
+        select(Game).where(Game.id == game_id)
+    ).scalar_one_or_none()
+
+    if not game:
+        raise not_found_error()
+
+    update_fields(game, update_game)
+    try_commit_db(db, game)
+
+    return game
+
+
+def delete_game(db: Session, game_id: UUID):
+    game = db.execute(
+        select(Game).where(Game.id == game_id)
+    ).scalar_one_or_none()
+
+    if not game:
+        raise not_found_error()
+
+    db.delete(game)
+    try_commit_db(db, game)
+
+    return "game deleted"
+
+
+#Game Participant Services
+def create_game_participant(db: Session, participant: CreateGameParticipant):
+    participant = create_model(db, GameParticipant, participant)
+    try_commit_db(db, participant)
+
+    return participant
+
+
+def get_game_participants(db: Session, game_id: UUID):
+    participants = db.execute(
+        select(GameParticipant)
         .where(GameParticipant.game_id == game_id)
-    )
+    ).scalars().all()
 
-    results = db.execute(participant_data).all()
+    if not participants:
+        raise not_found_error()
 
-    participant_list = [
-        {"user_id": str(user_id), "user_name": name}
-        for user_id, name in results
-    ]
-
-    return participant_list
+    return participants
 
 
-def get_game_basic_box_score(db: Session, game_id: UUID):
-    team_box_scores = db.execute(
-        select(BoxScore, User.name)
-        .join(User, User.id == BoxScore.user_id)
-        .where(
-            BoxScore.game_id == game_id,
-            BoxScore.is_opponent == False
-        )
-    ).all()
-
-
-    opponent_box_score = db.execute(
-        select(BoxScore).where(
-            BoxScore.game_id == game_id,
-            BoxScore.is_opponent == True
-        )
+def delete_participant(db: Session, game_id:UUID,user_id:UUID):
+    participant = db.execute(
+        select(GameParticipant).where(
+            GameParticipant.game_id == game_id,
+            GameParticipant.user_id == user_id)
     ).scalar_one_or_none()
 
-    team_stats = defaultdict(list)
-    for box_score, user_name in team_box_scores:
-        player_stat = calculate_basic_box_score(box_score)
-        team_stats[box_score.user_id].append(player_stat)
+    if not participant:
+        raise not_found_error()
 
-    opponent_stats = None
-    if opponent_box_score:
-        opponent_stats = calculate_basic_box_score(opponent_box_score)
+    db.delete(participant)
+    try_commit_db(db, participant)
 
-    return {
-        "team_box_scores":team_stats,
-        "opponent_box_score": opponent_stats
-            }
+    return "participant deleted"
 
-def get_game_shooting_box_score(db:Session, game_id: UUID):
-    team_box_scores = db.execute(
-        select(BoxScore, User.name)
-        .join(User, User.id == BoxScore.user_id)
-        .where(
-            BoxScore.game_id == game_id,
-            BoxScore.is_opponent == False
-        )
-    ).all()
 
-    opponent_box_score = db.execute(
-        select(BoxScore).where(
-            BoxScore.game_id == game_id,
-            BoxScore.is_opponent == True
-        )
-    ).scalar_one_or_none()
+#Box Score Services
+def create_box_scores(db: Session, box_scores: List[CreateBoxScore]):
+    box_score = []
+    for bs in box_scores:
+        create_model(db, BoxScore, bs)
+        box_score.append(bs)
 
-    team_stats = defaultdict(list)
-    for box_score, user_name in team_box_scores:
-        player_stat = calculate_shooting_box_score(box_score)
-        team_stats[box_score.user_id].append(player_stat)
+    try_commit_db(db, box_score)
 
-    opponent_stats = None
-    if opponent_box_score:
-        opponent_stats = calculate_shooting_box_score(opponent_box_score)
+    return box_score
 
-    return {
-        "team_box_scores": team_stats,
-        "opponent_box_score": opponent_stats
-    }
 
-def get_game_team_advanced_stat(db:Session, game_id: UUID):
+def get_basic_box_scores(db: Session, game_id: UUID):
     team_box_scores = db.execute(
         select(BoxScore)
-        .where(BoxScore.game_id == game_id,
-               BoxScore.is_opponent == False)
+        .where(BoxScore.game_id == game_id, BoxScore.is_opponent == False)
     ).scalars().all()
 
     opponent_box_scores = db.execute(
         select(BoxScore)
-        .where(BoxScore.game_id == game_id,
-               BoxScore.is_opponent == True)
+        .where(BoxScore.game_id == game_id, BoxScore.is_opponent == True)
     ).scalars().all()
 
+    team_scores = [
+        ReadBasicBoxScore(
+            user_id=bs.user_id,
+            name=bs.user.name if bs.user else "",
+            **calculate_basic_box_score(bs)
+        )
+        for bs in team_box_scores
+    ]
 
-    total_team_points = sum(calculate_pts(tbs.twopm,tbs.threepm,tbs.ftm) for tbs in team_box_scores)
-    total_team_poss = sum(
-        calculate_possessions(tbs.twopm+tbs.threepm,tbs.fta,tbs.oreb,tbs.tov) for tbs in team_box_scores)
-    total_opp_points =  sum(calculate_pts(obs.twopm,obs.threepm,obs.ftm) for obs in opponent_box_scores)
-    total_opp_poss = sum(
-        calculate_possessions(obs.twopm + obs.threepm, obs.fta, obs.oreb, obs.tov) for obs in opponent_box_scores)
-    total_mins = sum(tbs.mins for tbs in team_box_scores)/5
+    opponent_scores = [
+        ReadBasicBoxScore(
+            user_id=None,
+            name="opponent",
+            **calculate_basic_box_score(bs)
+        )
+        for bs in opponent_box_scores
+    ]
 
-    off_rtg = calculate_off_rtg(total_team_points,total_team_poss)
-    def_rtg = calculate_def_rtg(total_opp_points,total_opp_poss)
-    pace = calculate_pace(total_team_poss,total_opp_poss,total_mins)
-
-    return{
-        "off_rtg": off_rtg,
-        "def_rtg": def_rtg,
-        "pace": pace
+    return {
+        "team": team_scores,
+        "opponent": opponent_scores
     }
 
-def get_game_comments(db:Session, game_id: UUID):
+
+def get_shooting_box_scores(db: Session, game_id: UUID):
+    team_box_scores = db.execute(
+        select(BoxScore)
+        .where(BoxScore.game_id == game_id, BoxScore.is_opponent == False)
+    ).scalars().all()
+
+    opponent_box_scores = db.execute(
+        select(BoxScore)
+        .where(BoxScore.game_id == game_id, BoxScore.is_opponent == True)
+    ).scalars().all()
+
+    team_scores = [
+        ReadShootingBoxScore(
+            user_id=bs.user_id,
+            name=bs.user.name if bs.user else "",
+            **calculate_shooting_box_score(bs)
+        )
+        for bs in team_box_scores
+    ]
+
+    opponent_scores = [
+        ReadShootingBoxScore(
+            user_id=None,
+            name="opponent",
+            **calculate_shooting_box_score(bs)
+        )
+        for bs in opponent_box_scores
+    ]
+
+    return {
+        "team": team_scores,
+        "opponent": opponent_scores
+    }
+
+
+def get_team_advanced_stats(db: Session, game_id: UUID):
+    team_box_scores = db.execute(
+        select(BoxScore)
+        .where(BoxScore.game_id == game_id, BoxScore.is_opponent == False)
+    ).scalars().all()
+
+    opponent_box_scores = db.execute(
+        select(BoxScore)
+        .where(BoxScore.game_id == game_id, BoxScore.is_opponent == True)
+    ).scalars().all()
+
+    team_pts = calculate_total_points(team_box_scores)
+    opp_pts = calculate_total_points(opponent_box_scores)
+    team_poss = calculate_total_possessions(team_box_scores)
+    opp_poss = calculate_total_possessions(opponent_box_scores)
+    total_mins = sum(tbs.mins for tbs in team_box_scores) / 5
+
+    off_rtg = calculate_off_rtg(team_pts, team_poss)
+    def_rtg = calculate_def_rtg(opp_pts, opp_poss)
+    net_rtg = calculate_net_rtg(off_rtg, def_rtg)
+    pace = calculate_pace(team_poss, opp_poss, total_mins)
+
+    return ({
+        "off_rtg": off_rtg,
+        "def_rtg": def_rtg,
+        "net_rtg": net_rtg,
+        "pace": pace
+    })
+
+def update_box_score(db: Session, box_scores: List[UpdateBoxScore]):
+    updated_bs = []
+    for bs_update in box_scores:
+        box_score = db.execute(
+            select(BoxScore).where(BoxScore.id == bs_update.id)
+        ).scalar_one_or_none()
+
+        if not box_score:
+            raise not_found_error()
+
+        update_fields(box_score, bs_update)
+        updated_bs.append(box_score)
+
+    try_commit_db(db,updated_bs)
+
+    return updated_bs
+
+#comment
+def create_comment(db:Session, comments:List[CreateComment]):
+    created_comments =[]
+    for comment in comments:
+        new_comment = create_model(db,Comment,comment)
+        created_comments.append(new_comment)
+
+    try_commit_db(db,created_comments)
+
+    return created_comments
+
+def get_comments(db:Session, game_id: UUID):
     comments = db.execute(
         select(Comment)
         .where(Comment.game_id == game_id)
     ).scalars().all()
 
+    if not comments:
+        raise not_found_error()
+
     return comments
 
-def get_game_play_by_play(db:Session, game_id: UUID):
-    play_by_play = db.execute(
-        select(PlayByPlay)
-        .where(PlayByPlay.game_id == game_id)
-        .order_by(PlayByPlay.timestamp_seconds)
-    ).scalars().all()
-
-    return play_by_play
-
-def update_game_details(db:Session,update_game:UpdateGame):
-    game = get_game_by_id(db,update_game.game_id)
-
-    if not game:
-        raise HTTPException(status_code=404, detail="Game not found")
-
-    if update_game.date:
-        game.date = update_game.date
-
-    if update_game.opponent:
-        game.opponent = update_game.opponent
-
-    if update_game.video_url:
-        game.video_url = update_game.video_url
-
-    db.commit()
-    db.refresh(game)
-
-    return game
-
-#loop through box_scores in router
-#log changes in frontend to avoid checking all box scores
-def update_box_score(db:Session, update_box_score: UpdateBoxScore):
-    box_score = db.execute(
-        select(BoxScore)
-        .where(BoxScore.id == update_box_score.id)
-    ).scalars().all()
-
-    if not box_score:
-        raise HTTPException(status_code=404, detail="Box score not found")
-
-    if update_box_score.mins:
-        box_score.mins = update_box_score.mins
-
-    if update_box_score.ast:
-        box_score.ast = update_box_score.ast
-
-    if update_box_score.oreb:
-        box_score.oreb = update_box_score.oreb
-
-    if update_box_score.stl:
-        box_score.stl = update_box_score.stl
-
-    if update_box_score.blk:
-        box_score.blk = update_box_score.blk
-
-    if update_box_score.twopm:
-        box_score.twopm = update_box_score.twopm
-
-    if update_box_score.twopa:
-        box_score.twopa = update_box_score.twopa
-
-    if update_box_score.threepm:
-        box_score.threepm = update_box_score.threepm
-
-    if update_box_score.threepa:
-        box_score.threepa = update_box_score.threepa
-
-    if update_box_score.ftm:
-        box_score.ftm = update_box_score.ftm
-
-    if update_box_score.fta:
-        box_score.fta = update_box_score.fta
-
-    if update_box_score.plus_minus:
-        box_score.plus_minus = update_box_score.plus_minus
-
-    db.commit()
-    db.refresh(box_score)
-
-    return box_score
-
-def update_comment(db:Session, update_comment: UpdateComment):
+def update_comment(db:Session, update_comment:UpdateComment):
     comment = db.execute(
-        select(Comment)
-        .where(Comment.id == update_comment.id)
-    )
+        select(Comment).where(Comment.id == update_comment.id)
+    ).scalar_one_or_none()
 
     if not comment:
-        raise HTTPException(status_code=404, detail="Comment not found")
+        raise not_found_error()
 
-    if update_comment.timestamp_seconds:
-        Comment.timestamp_seconds = update_comment.timestamp_seconds
-
-    if update_comment.comment_text:
-        Comment.comment_text = update_comment.comment_text
-
-    db.commit()
-    db.refresh(comment)
+    update_fields(comment, update_comment)
+    try:
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
 
     return comment
+
+def delete_comment(db:Session, comment_id:UUID):
+    comment = db.execute(
+        select(Comment).where(Comment.id == comment_id)
+    ).scalar_one_or_none()
+
+    if not comment:
+        raise not_found_error()
+
+    db.delete(comment)
+    try_commit_db(db,comment)
+
+    return "comment deleted"
+
+#play by play
+
+def create_play_by_plays(db:Session,play_by_plays:List[CreatePlayByPlay]):
+    created_play_by_plays = []
+    for play_by_play in play_by_plays:
+        pbp = create_model(db,PlayByPlay,play_by_play)
+        created_play_by_plays.append(pbp)
+
+    try_commit_db(db,created_play_by_plays)
+    return created_play_by_plays
+
+def get_play_by_plays(db:Session, game_id: UUID):
+    play_by_plays = db.execute(
+        select(PlayByPlay)
+        .where(PlayByPlay.game_id == game_id)
+        .order_by(PlayByPlay.timestamp_seconds.desc())
+    ).scalars().all()
+
+    return play_by_plays if play_by_plays else []
+
+def delete_play_by_play(db:Session, play_by_play_id):
+    play_by_play = db.execute(
+        select(PlayByPlay)
+        .where(PlayByPlay.id == play_by_play_id)
+    ).scalar_one_or_none()
+
+    if not play_by_play:
+        raise not_found_error()
+
+    db.delete(play_by_play)
+    try_commit_db(db,play_by_play)
+
+    return "play_by_play deleted"
