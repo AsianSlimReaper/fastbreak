@@ -36,7 +36,7 @@ function IndividualBasicStats({ stats}){
                             <td>{player.games_played}</td>
                             <td>{player.mins}</td>
                             <td>{player.ppg}</td>
-                            <td>{player.asg}</td>
+                            <td>{player.apg}</td>
                             <td>{player.rpg}</td>
                             <td>{player.spg}</td>
                             <td>{player.bpg}</td>

@@ -93,3 +93,6 @@ def get_play_by_plays(game_id:UUID,db: Session = Depends(get_db)):
 @router.delete("/play-by-plays/{pbp_id}",response_model=str)
 def delete_play_by_play(pbp_id:UUID,db:Session = Depends(get_db)):
     return film_room_service.delete_play_by_play(db, pbp_id)
+
+
+#video storage and upload

@@ -119,11 +119,11 @@ def get_player_profile(db:Session, team_id:UUID, user_id: UUID):
         "rpg": round(total_rebounds / num_games, 1) if num_games else 0.0,
         "spg": round(total_steals / num_games, 1) if num_games else 0.0,
         "bpg": round(total_blocks / num_games, 1) if num_games else 0.0,
-        "fg_pct": round(calculate_fg_percent(total_fgm, total_fga) * 100, 1) if num_games else 0.0,
-        "threep_pct": round(calculate_3p_percent(total_threepm, total_threepa) * 100, 1) if num_games else 0.0,
-        "ft_pct": round(calculate_ft_percent(total_ftm, total_fta) * 100, 1) if num_games else 0.0,
-        "ts_pct": round(calculate_ts_percent(total_points,total_fgm,total_fta) * 100, 1) if num_games else 0.0,
-        "efg_pct": round(calculate_efg_percent(total_fgm,total_threepm,total_fga) * 100, 1) if num_games else 0.0,
+        "fg_pct": round(calculate_fg_percent(total_fgm, total_fga), 1) if num_games else 0.0,
+        "threep_pct": round(calculate_3p_percent(total_threepm, total_threepa) , 1) if num_games else 0.0,
+        "ft_pct": round(calculate_ft_percent(total_ftm, total_fta), 1) if num_games else 0.0,
+        "ts_pct": round(calculate_ts_percent(total_points,total_fgm,total_fta), 1) if num_games else 0.0,
+        "efg_pct": round(calculate_efg_percent(total_fgm,total_threepm,total_fga), 1) if num_games else 0.0,
         "plus_minus":round(total_plus_minus/num_games,1) if num_games else 0.0,
         "tov":round(total_turnovers/num_games,1) if num_games else 0.0
     }

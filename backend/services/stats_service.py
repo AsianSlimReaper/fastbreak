@@ -36,7 +36,7 @@ def calculate_individual_averages(stats):
         total_turnovers += stat.tov
         total_fouls += stat.fls
         total_plus_minus += stat.plus_minus
-        total_efficiency += calculate_efficiency(points,stat.reb,stat.ast,stat.stl,stat.blk,
+        total_efficiency += calculate_efficiency(points,stat.dreb+stat.oreb,stat.ast,stat.stl,stat.blk,
                                                  stat.twopa+stat.threepa,stat.twopm+stat.threepm,
                                                  stat.fta,stat.ftm,stat.tov)
 

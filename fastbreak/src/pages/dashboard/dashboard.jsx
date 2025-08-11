@@ -68,12 +68,12 @@ function Dashboard() {
 						</div>
 
 						<div className="dashboard-team-stats-wrapper">
-							<DashboardTeamStats dashboardData={dashboardData} />
+							<DashboardTeamStats teamStats={dashboardData.team_stats} />
 						</div>
 
 						<div className="dashboard-individual-stats-wrapper">
 							{role === "player" ? (
-								<DashboardPlayerIndividualStats dashboardData={dashboardData} user_name={user.name} />
+								<DashboardPlayerIndividualStats IndividualStats={dashboardData.individual_stats} user_name={user.name} />
 							) : (
 								<DashboardAllIndividualStats dashboardData={dashboardData} />
 							)}

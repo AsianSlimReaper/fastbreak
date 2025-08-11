@@ -36,35 +36,35 @@ def calculate_fga(two_pa, three_pa):
 #output: total free throws made
 def calculate_fg_percent(fgm, fga):
     #returns the field goal percentage based on the number of field goals made and attempted
-    return round(fgm / fga, 2) if fga else 0.0
+    return round(fgm * 100 / fga, 2) if fga else 0.0
 
 #purpose: calculate two-point percentage
 #input: two-point made, two-point attempts
 #output: two-point shooting percentage
 def calculate_2p_percent(two_pm, two_pa):
     #returns the two-point shooting percentage based on the number of two-point shots made and attempted
-    return round(two_pm / two_pa, 2) if two_pa else 0.0
+    return round(two_pm * 100 / two_pa, 2) if two_pa else 0.0
 
 #purpose: calculate three-point percentage
 #input: three-point made, three-point attempts
 #output: three-point shooting percentage
 def calculate_3p_percent(three_pm, three_pa):
     #returns the three-point shooting percentage based on the number of three-point shots made and attempted
-    return round(three_pm / three_pa, 2) if three_pa else 0.0
+    return round(three_pm * 100 / three_pa, 2) if three_pa else 0.0
 
 #purpose: calculate free throw percentage
 #input: free throws made, free throw attempts
 #output: free throw shooting percentage
 def calculate_ft_percent(ftm, fta):
     #returns the free throw shooting percentage based on the number of free throws made and attempted
-    return round(ftm / fta, 2) if fta else 0.0
+    return round(ftm * 100 / fta, 2) if fta else 0.0
 
 #purpose: calculate effective field goal percentage
 #input: field goals made, three-point made, field goal attempts
 #output: effective field goal percentage
 def calculate_efg_percent(fgm, three_pm, fga):
     #returns the effective field goal percentage based on the number of field goals made, three-point shots made, and field goal attempts
-    return round((fgm + 0.5 * three_pm) / fga, 2) if fga else 0.0
+    return round((fgm + 0.5 * three_pm) * 100 / fga, 2) if fga else 0.0
 
 #purpose: calculate true shooting percentage
 #input: points scored, field goal attempts, free throw attempts
@@ -72,7 +72,7 @@ def calculate_efg_percent(fgm, three_pm, fga):
 def calculate_ts_percent(pts, fga, fta):
     #returns the true shooting percentage based on the total points scored, field goal attempts, and free throw attempts
     denominator = 2 * (fga + 0.44 * fta)
-    return round(pts / denominator, 2) if denominator else 0.0
+    return round(pts * 100 / denominator, 2) if denominator else 0.0
 
 #purpose: calculate player efficiency rating
 #input: points, rebounds, assists, steals, blocks, field goal attempts, field goals made, free throw attempts, free throws made, turnovers

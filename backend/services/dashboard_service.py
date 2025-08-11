@@ -156,11 +156,12 @@ def get_dashboard_all_individual_stats(team_id: UUID, db:Session):
 
     return results
 
-def get_player_recent_games(user_id: UUID, db: Session):
+def get_player_recent_games(user_id: UUID,team_id:UUID, db: Session):
     games = db.execute(
         select(Game)
         .join(GameParticipant)
-        .where(GameParticipant.user_id == user_id)
+        .where(GameParticipant.user_id == user_id,
+               Game.team_id == team_id)
         .order_by(Game.date.desc())
         .limit(8)
     ).scalars().all()

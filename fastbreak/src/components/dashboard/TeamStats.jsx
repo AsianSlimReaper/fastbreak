@@ -1,15 +1,16 @@
 import React from "react";
 import './TeamStats.css'
+import Loader from "../universal/Loader.jsx";
 
-function DashboardTeamStats({ DashboardData }) {
-	const wins = DashboardData?.wins || 0;
-	const losses = DashboardData?.losses || 0;
-	const draws = DashboardData?.draws || 0;
+function DashboardTeamStats({  teamStats }) {
+	const wins = teamStats.wins;
+	const losses = teamStats.losses;
+	const draws = teamStats.draws;
 	const record = `${wins}-${losses}-${draws}`;
 
-	const offRtg = DashboardData?.off_rtg ?? 0;
-	const defRtg = DashboardData?.def_rtg ?? 0;
-	const netRtg = DashboardData?.net_rtg ?? 0;
+	const offRtg = teamStats.off_rtg;
+	const defRtg = teamStats.def_rtg;
+	const netRtg = teamStats.net_rtg;
 
 	const netRtgStyle = {
 		color: netRtg > 0 ? "green" : netRtg < 0 ? "red" : "#A1A1AA"

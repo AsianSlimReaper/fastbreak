@@ -2,12 +2,12 @@ import React from "react";
 import PlayerAvatar from "../universal/PlayerAvatar.jsx";
 import './PlayerIndividualStats.css'
 
-function DashboardPlayerIndividualStats({DashboardData,user_name}) {
-    const ppg = DashboardData?.individual_stats?.ppg || 0;
-    const apg = DashboardData?.individual_stats?.apg || 0;
-    const rpg = DashboardData?.individual_stats?.rpg || 0;
-    const spg = DashboardData?.individual_stats?.spg || 0;
-    const bpg = DashboardData?.individual_stats?.bpg || 0;
+function DashboardPlayerIndividualStats({IndividualStats,user_name}) {
+    const ppg = IndividualStats.ppg;
+    const apg = IndividualStats.apg;
+    const rpg = IndividualStats.rpg;
+    const spg = IndividualStats.spg ;
+    const bpg = IndividualStats.bpg;
 
     return(
         <>

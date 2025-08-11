@@ -11,7 +11,7 @@ router = APIRouter(prefix="/dashboard", tags=["dashboard"])
 def get_player_dashboard(user_id: UUID,team_id:UUID, db: Session = Depends(get_db)):
     team_stats = dashboard_service.get_dashboard_team_stats(team_id, db)
     individual_stats = dashboard_service.get_dashboard_player_individual_stats(user_id,team_id, db)
-    recent_games = dashboard_service.get_player_recent_games(user_id, db)
+    recent_games = dashboard_service.get_player_recent_games(user_id,team_id, db)
 
     return({
         "team_stats": team_stats,

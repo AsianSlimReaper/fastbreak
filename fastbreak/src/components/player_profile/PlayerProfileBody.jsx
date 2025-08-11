@@ -65,6 +65,7 @@ function PlayerProfileBody({stats,recentGames}){
                             recentGames.map((game) => (
                                 <tr key={game.id}>
                                     <td>{new Date(game.date).toLocaleDateString()}</td>
+                                    <td>{game.opponent}</td>
                                     <td>{game.pts}</td>
                                     <td>{game.ast}</td>
                                     <td>{game.reb}</td>

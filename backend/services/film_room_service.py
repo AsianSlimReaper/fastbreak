@@ -216,10 +216,10 @@ def delete_participant(db: Session, game_id:UUID,user_id:UUID):
 def create_box_scores(db: Session, box_scores: List[CreateBoxScore]):
     box_score = []
     for bs in box_scores:
-        create_model(db, BoxScore, bs)
-        box_score.append(bs)
+        obj = create_model(db, BoxScore, bs)
+        box_score.append(obj)
 
-    try_commit_db(db, box_score)
+        try_commit_db(db, obj)
 
     return box_score
 
