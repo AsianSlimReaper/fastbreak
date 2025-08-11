@@ -59,7 +59,7 @@ def get_shooting_box_scores(game_id:UUID,db:Session = Depends(get_db)):
 def get_team_advanced_stats(game_id:UUID,db:Session = Depends(get_db)):
     return film_room_service.get_team_advanced_stats(db,game_id)
 
-@router.patch("/box-score",response_model=List[CreateBoxScore])
+@router.patch("/box-score",response_model=List[ReadBoxScore])
 def update_box_score(box_score:List[UpdateBoxScore],db:Session = Depends(get_db)):
     return film_room_service.update_box_score(db,box_score)
 
