@@ -16,6 +16,7 @@ import ShootingStats from "./pages/stats/ShootingStats.jsx";
 import Profile from "./pages/settings/profile.jsx";
 import ProfileList from "./pages/playerProfiles/ProfileList.jsx";
 import PlayerProfile from "./pages/playerProfiles/PlayerProfile.jsx";
+import FilmRoomHome from "./pages/filmRoom/FilmRoomHome.jsx";
 
 function App() {
     return (
@@ -36,6 +37,7 @@ function App() {
                 <Route path = "/profile" element={<Profile/>}/>
                 <Route path = "/player-profile/team/:teamId" element={<ProfileList/>}/>
                 <Route path = "/player-profile/player/:teamId/:userId" element={<PlayerProfile/>}/>
+                <Route path = "/film-room/team/:teamId" element={<FilmRoomHome/>}/>
             </Routes>
         </AppLayout>
     );

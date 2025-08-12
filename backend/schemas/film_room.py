@@ -27,6 +27,7 @@ class ReadGameDetails(Base):
 
 
 class ReadGameSummary(Base):
+    game_id:UUID
     date: date
     opponent: str
     team_score: int

@@ -126,6 +126,7 @@ def get_all_team_games(db: Session, team_id: UUID):
         team_score, opponent_score, result = get_game_result_and_scores(box_scores)
 
         all_games.append({
+            "game_id":game.id,
             "date": game.date,
             "opponent": game.opponent,
             "team_score": team_score,

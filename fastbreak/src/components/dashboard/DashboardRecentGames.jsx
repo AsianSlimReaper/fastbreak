@@ -29,7 +29,7 @@ function DashboardRecentGames({dashboardData}){
 							<td>{new Date(game.date).toLocaleDateString()}</td>
 							<td>{game.opponent}</td>
 							<td>{game.team_score}-{game.opponent_score}</td>
-							<td style={{ color: game.result === "win" ? "#18FF0A" : game.result === "loss" ? "#18FF0A" : "#8A8A8A" }}>
+							<td style={{ color: game.result === "win" ? "#18FF0A" : game.result === "loss" ? "#F70808" : "#8A8A8A" }}>
 								{game.result}
 							</td>
 						</tr>

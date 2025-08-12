@@ -131,7 +131,8 @@ def get_player_profile(db:Session, team_id:UUID, user_id: UUID):
     games = db.execute(
         select(Game)
         .join(GameParticipant)
-        .where(GameParticipant.user_id == user_id)
+        .where(GameParticipant.user_id == user_id,
+               Game.team_id == team_id)
         .order_by(Game.date.desc())
         .limit(12)
     ).scalars().all()
