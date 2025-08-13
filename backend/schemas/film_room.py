@@ -15,7 +15,6 @@ class CreateGame(Base):
     team_id: UUID
     opponent: str
     date: date
-    video_url: str
 
 
 class ReadGameDetails(Base):
@@ -23,7 +22,6 @@ class ReadGameDetails(Base):
     team_id: UUID
     opponent: str
     date: date
-    video_url: str
 
 
 class ReadGameSummary(Base):
@@ -38,7 +36,6 @@ class ReadGameSummary(Base):
 class UpdateGame(Base):
     opponent: Optional[str]
     date: Optional[date]
-    video_url: Optional[str]
 
 
 #Game Participant Schemas

@@ -11,11 +11,11 @@ function FilmHomeTable({ games, role, teamId }) {
     };
 
     const navigateEditGame = (gameId) => {
-        navigate(`/film-room/edit-game/${teamId}/${gameId}`);
+        navigate(`/film-room/game/edit-game/${teamId}/${gameId}`);
     };
 
     const navigateViewGame = (gameId) => {
-        navigate(`/team/film-room/view-game/${teamId}/${gameId}`);
+        navigate(`/film-room//game/view-game/${teamId}/${gameId}`);
     };
 
     return (

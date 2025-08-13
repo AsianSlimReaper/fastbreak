@@ -17,6 +17,8 @@ import Profile from "./pages/settings/profile.jsx";
 import ProfileList from "./pages/playerProfiles/ProfileList.jsx";
 import PlayerProfile from "./pages/playerProfiles/PlayerProfile.jsx";
 import FilmRoomHome from "./pages/filmRoom/FilmRoomHome.jsx";
+import AddGame from "./pages/filmRoom/AddGame.jsx";
+import EditGame from "./pages/filmRoom/EditGame.jsx";
 
 function App() {
     return (
@@ -38,6 +40,8 @@ function App() {
                 <Route path = "/player-profile/team/:teamId" element={<ProfileList/>}/>
                 <Route path = "/player-profile/player/:teamId/:userId" element={<PlayerProfile/>}/>
                 <Route path = "/film-room/team/:teamId" element={<FilmRoomHome/>}/>
+                <Route path = "film-room/add-game/:teamId" element={<AddGame/>}/>
+                <Route path = "film-room/game/edit-game/:teamId/:gameId" element={<EditGame/>}/>
             </Routes>
         </AppLayout>
     );

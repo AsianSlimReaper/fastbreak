@@ -11,6 +11,7 @@ function AddTeam() {
     const token = localStorage.getItem('access_token');
     const [user, setUser] = useState(null);
     const [teams, setTeams] = useState([]);
+    const [currentTeam,setCurrentTeam] = useState(null)
 
     const [teamName, setTeamName] = useState('');
     const [jerseyNumber, setJerseyNumber] = useState('');

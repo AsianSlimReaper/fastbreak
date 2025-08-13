@@ -1,6 +1,5 @@
 import React from "react";
 import './TeamStats.css'
-import Loader from "../universal/Loader.jsx";
 
 function DashboardTeamStats({  teamStats }) {
 	const wins = teamStats.wins;

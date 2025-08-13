@@ -60,7 +60,6 @@ class Game(Base):
     team_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey('teams.id'), nullable=False)
     opponent: Mapped[str] = mapped_column(String, nullable=False)
     date: Mapped[date] = mapped_column(Date, nullable=False)
-    video_url: Mapped[str | None] = mapped_column(String, nullable=True)
 
     team = relationship("Team", back_populates="games")
     box_scores = relationship("BoxScore", back_populates="game", cascade="all, delete-orphan")

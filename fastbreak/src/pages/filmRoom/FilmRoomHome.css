@@ -1,0 +1,14 @@
+.film-home-container{
+	display: flex;
+	padding: 2rem;
+	flex-direction: column;
+	width:100%;
+	height:90vh;
+}
+
+.film-home-loader{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height:90vh;
+}

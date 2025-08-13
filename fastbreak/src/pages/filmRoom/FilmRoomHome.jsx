@@ -40,11 +40,15 @@ function FilmRoomHome(){
     return(
         <>
             <MainLayout teams={teams}>
-                {games && currentMembership?(
-                    <FilmHomeTable teamId={teamId} games={games} role={currentMembership.role}/>
-                ):(
-                    <Loader/>
-                )}
+                <div className='film-home-container'>
+                    {games && currentMembership?(
+                        <FilmHomeTable teamId={teamId} games={games} role={currentMembership.role}/>
+                    ):(
+                        <div className='film-home-loader'>
+                            <Loader/>
+                        </div>
+                    )}
+                </div>
             </MainLayout>
         </>
     )
