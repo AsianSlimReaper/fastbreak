@@ -33,14 +33,13 @@ export const GetGameDetails = async(token,game_id) =>{
     }
 }
 
-export const CreateGame = async(token,{gameData}) => {
+export const CreateGame = async(token,gameData) => {
     try{
         const response = await axios.post(`${BASE_URL}/film-room/new-game`,
             {
                 "team_id":gameData.team_id,
                 "opponent":gameData.opponent,
-                "date":gameData.date,
-                "video_url":gameData.video_url
+                "date":gameData.date
             },
             {headers: {
                     'Authorization': `Bearer ${token}`
@@ -49,7 +48,23 @@ export const CreateGame = async(token,{gameData}) => {
     )
         return response.data
     }catch(error){
-        console.error("Error fetching games:", error);
+        console.error("Error creating games:", error);
+        throw error;
+    }
+}
+
+export const GetTeamPlayers = async(token,teamId) => {
+    try {
+        const response = await axios.get(`${BASE_URL}/teams/players/${teamId}`,
+            {
+                headers: {
+					'Authorization': `Bearer ${token}`
+				},
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error("Error getting players:", error);
         throw error;
     }
 }

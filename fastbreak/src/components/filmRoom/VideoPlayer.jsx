@@ -5,7 +5,7 @@ import ReactPlayer from 'react-player'
 function VideoPlayer({videoUrl}){
     return(
         <ReactPlayer
-            url={videoUrl}
+            src={videoUrl}
             controls={true}
             playing={false}
             width="100%"

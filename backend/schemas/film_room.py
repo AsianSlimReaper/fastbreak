@@ -184,3 +184,15 @@ class ReadPlayByPlay(Base):
     is_opponent: bool
     event_type: str
     description: str
+
+#subs
+class CreateSubs(Base):
+    game_id:UUID
+    timestamp_seconds: int
+    on_court:List[str]
+
+class ReadSubs(Base):
+    id:UUID
+    game_id: UUID
+    timestamp_seconds: int
+    on_court: List[str]

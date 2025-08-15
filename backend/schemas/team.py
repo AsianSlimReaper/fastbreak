@@ -59,3 +59,16 @@ class TeamUpdate(BaseModel):
     model_config = {
         "from_attributes": True
     }
+
+class GetPlayers(BaseModel):
+    id:UUID
+    team_id: UUID
+    user_id:UUID
+    role:str
+    jersey_number: Optional[int] = None
+    position: Optional[str] = None
+    archived: Optional[bool]
+
+    model_config = {
+        "from_attributes": True
+    }

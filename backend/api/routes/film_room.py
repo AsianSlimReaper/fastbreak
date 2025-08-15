@@ -69,7 +69,7 @@ def update_box_score(box_score:List[UpdateBoxScore],db:Session = Depends(get_db)
 def create_comments(comments:List[CreateComment],db:Session = Depends(get_db)):
     return film_room_service.create_comment(db,comments)
 
-@router.get("/comments",response_model=List[ReadComment])
+@router.get("/comments/{game_id}",response_model=List[ReadComment])
 def get_comments(game_id:UUID,db:Session = Depends(get_db)):
     return film_room_service.get_comments(db,game_id)
 
@@ -94,5 +94,11 @@ def get_play_by_plays(game_id:UUID,db: Session = Depends(get_db)):
 def delete_play_by_play(pbp_id:UUID,db:Session = Depends(get_db)):
     return film_room_service.delete_play_by_play(db, pbp_id)
 
+#subs
+@router.post("/subs",response_model=List[ReadSubs])
+def add_subs(new_subs:List[CreateSubs],db:Session = Depends(get_db)):
+    return film_room_service.add_subs(db,new_subs)
 
-#video storage and upload
+@router.get("/subs/{game_id}",response_model=List[ReadSubs])
+def get_subs(game_id:UUID,db:Session = Depends(get_db)):
+    return film_room_service.get_subs(db,game_id)

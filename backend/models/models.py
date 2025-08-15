@@ -1,10 +1,11 @@
 import uuid
 from datetime import date
 from sqlalchemy import (
-    String, Text, Integer, ForeignKey, UniqueConstraint, Boolean, Date,Index, Float
+    String, Text, Integer, ForeignKey, UniqueConstraint, Boolean, Date,Index, Float, ARRAY
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship, DeclarativeBase
 from sqlalchemy.dialects.postgresql import UUID
+from typing import List
 
 
 class Base(DeclarativeBase):
@@ -66,6 +67,7 @@ class Game(Base):
     comments = relationship("Comment", back_populates="game", cascade="all, delete-orphan")
     participants = relationship("GameParticipant", back_populates="game", cascade="all, delete-orphan")
     play_by_plays = relationship("PlayByPlay", back_populates="game", cascade="all, delete-orphan")
+    substitutions = relationship("Substitution", back_populates="game", cascade="all, delete-orphan")
 
 
 class GameParticipant(Base):
@@ -137,6 +139,16 @@ class PlayByPlay(Base):
 
     game = relationship("Game", back_populates="play_by_plays")
     user = relationship("User", back_populates="play_by_plays")
+
+class Substitution(Base):
+    __tablename__ = "substitutions"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    game_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey('games.id'), nullable=False,index=True)
+    timestamp_seconds:Mapped[int] = mapped_column(Integer)
+    on_court: Mapped[List[str]] = mapped_column(ARRAY(String), nullable=False)
+
+    game = relationship("Game", back_populates="substitutions")
 
 
 

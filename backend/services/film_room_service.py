@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-from backend.models.models import BoxScore, Game, GameParticipant,Comment,PlayByPlay
+from backend.models.models import BoxScore, Game, GameParticipant,Comment,PlayByPlay, Substitution
 from fastapi import HTTPException
 from backend.schemas.film_room import *
 from backend.utils.stat_calculations import *
@@ -359,7 +359,7 @@ def get_comments(db:Session, game_id: UUID):
     ).scalars().all()
 
     if not comments:
-        raise not_found_error()
+        return []
 
     return comments
 
@@ -413,7 +413,7 @@ def get_play_by_plays(db:Session, game_id: UUID):
 
     return play_by_plays if play_by_plays else []
 
-def delete_play_by_play(db:Session, play_by_play_id):
+def delete_play_by_play(db:Session, play_by_play_id:UUID):
     play_by_play = db.execute(
         select(PlayByPlay)
         .where(PlayByPlay.id == play_by_play_id)
@@ -426,3 +426,23 @@ def delete_play_by_play(db:Session, play_by_play_id):
     try_commit_db(db,play_by_play)
 
     return "play_by_play deleted"
+
+def get_subs(db:Session,game_id:UUID):
+    subs = db.execute(
+        select(Substitution)
+        .where(Substitution.game_id == game_id)
+    ).scalars().all()
+
+    if not subs:
+        return []
+
+    return subs
+
+def add_subs(db:Session,new_sub:List[CreateSubs]):
+    new_subs = []
+    for sub in new_sub:
+        subs = create_model(db,Substitution,sub)
+        try_commit_db(db,subs)
+        new_subs.append(subs)
+
+    return new_subs

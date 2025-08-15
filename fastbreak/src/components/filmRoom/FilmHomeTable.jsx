@@ -15,7 +15,7 @@ function FilmHomeTable({ games, role, teamId }) {
     };
 
     const navigateViewGame = (gameId) => {
-        navigate(`/film-room//game/view-game/${teamId}/${gameId}`);
+        navigate(`/film-room/game/view-game/${teamId}/${gameId}`);
     };
 
     return (
