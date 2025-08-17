@@ -15,6 +15,7 @@ class CreateGame(Base):
     team_id: UUID
     opponent: str
     date: date
+    participants: Optional[List[UUID]] = None
 
 
 class ReadGameDetails(Base):
@@ -196,3 +197,8 @@ class ReadSubs(Base):
     game_id: UUID
     timestamp_seconds: int
     on_court: List[str]
+
+# Team Player Schema for selection
+class TeamPlayer(Base):
+    user_id: UUID
+    name: str

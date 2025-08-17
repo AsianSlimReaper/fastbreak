@@ -130,7 +130,7 @@ function AddTeam() {
                             <option value="forward">Forward</option>
                             <option value="big">Big</option>
                         </select>
-                        </div>
+                    </div>
                     <div className='add-team-button-wrapper'>
                         <ButtonComponent
                             type='submit'

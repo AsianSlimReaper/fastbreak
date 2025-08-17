@@ -1,21 +1,33 @@
-import React from "react";
+import React, { useEffect, useRef, forwardRef } from "react";
 import "./VideoPlayer.css";
-import ReactPlayer from 'react-player'
 
-function VideoPlayer({videoUrl}){
-    return(
-        <ReactPlayer
+const VideoPlayer = forwardRef(function VideoPlayer({ videoUrl, seekTo, onSeeked }, ref) {
+    const localRef = useRef();
+    const videoElementRef = ref || localRef;
+
+    useEffect(() => {
+        if (
+            seekTo != null &&
+            videoElementRef.current &&
+            typeof videoElementRef.current.currentTime === "number"
+        ) {
+            videoElementRef.current.currentTime = seekTo;
+            if (onSeeked) onSeeked();
+        }
+    }, [seekTo, onSeeked, videoElementRef]);
+
+    if (!videoUrl) {
+        return <div style={{ textAlign: "center", padding: "2rem" }}>No video available.</div>;
+    }
+
+    return (
+        <video
+            ref={videoElementRef}
             src={videoUrl}
-            controls={true}
-            playing={false}
-            width="100%"
-            height="auto"
-            volume={1}
-            muted={false}
-            loop={false}
-            onError={(e) => console.error("Video playback error:", e)}
+            controls
+            style={{ width: "100%", height: "auto" }}
         />
-    )
-}
+    );
+});
 
-export default VideoPlayer
+export default VideoPlayer;

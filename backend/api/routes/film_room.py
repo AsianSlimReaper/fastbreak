@@ -10,7 +10,8 @@ router = APIRouter(prefix="/film-room", tags=["film-room"])
 #game_details:
 @router.post("/new-game",response_model=ReadGameDetails)
 def new_game(game: CreateGame,db:Session = Depends(get_db)):
-    return film_room_service.create_game(db,game)
+    created_game = film_room_service.create_game(db,game)
+    return created_game
 
 @router.get("/all-games/{team_id}",response_model=List[ReadGameSummary])
 def get_all_games(team_id:UUID,db: Session = Depends(get_db)):
@@ -32,6 +33,10 @@ def delete_game(game_id:UUID,db:Session = Depends(get_db)):
 @router.post("/new-participant",response_model=ReadGameParticipant)
 def create_new_participant(participant:CreateGameParticipant,db:Session = Depends(get_db)):
     return film_room_service.create_game_participant(db,participant)
+
+@router.post("/new-participants", response_model=list[ReadGameParticipant])
+def create_new_participants(participants: list[CreateGameParticipant], db: Session = Depends(get_db)):
+    return film_room_service.create_game_participants_bulk(db, participants)
 
 @router.get("/game-participants/{game_id}",response_model=List[ReadGameParticipant])
 def get_game_participants(game_id:UUID,db:Session = Depends(get_db)):
@@ -70,7 +75,7 @@ def create_comments(comments:List[CreateComment],db:Session = Depends(get_db)):
     return film_room_service.create_comment(db,comments)
 
 @router.get("/comments/{game_id}",response_model=List[ReadComment])
-def get_comments(game_id:UUID,db:Session = Depends(get_db)):
+def get_comments(game_id:UUID,db: Session = Depends(get_db)):
     return film_room_service.get_comments(db,game_id)
 
 @router.patch("/comments",response_model=ReadComment)
@@ -102,3 +107,7 @@ def add_subs(new_subs:List[CreateSubs],db:Session = Depends(get_db)):
 @router.get("/subs/{game_id}",response_model=List[ReadSubs])
 def get_subs(game_id:UUID,db:Session = Depends(get_db)):
     return film_room_service.get_subs(db,game_id)
+
+@router.get("/team-players/{team_id}", response_model=List[TeamPlayer])
+def get_team_players(team_id: UUID, db: Session = Depends(get_db)):
+    return film_room_service.get_team_players(db, team_id)

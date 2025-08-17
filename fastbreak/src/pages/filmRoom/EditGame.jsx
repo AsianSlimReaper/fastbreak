@@ -1,7 +1,7 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useRef} from "react";
 import "./EditGame.css"
 import {useNavigate, useParams} from "react-router-dom";
-import {GetGameDetails} from "../../services/filmRoom/games.js";
+import {GetGameDetails, GetTeamPlayers, GetGameParticipants, CreateGameParticipant, CreateBoxScore} from "../../services/filmRoom/games.js";
 import {GetVideo} from "../../services/filmRoom/wasabi.js";
 import MainLayout from "../../components/main/MainLayout.jsx";
 import VideoPlayer from "../../components/filmRoom/VideoPlayer.jsx";
@@ -10,6 +10,8 @@ import {GetBasicStats, GetShootingStats} from "../../services/filmRoom/stats.js"
 import {GetComments} from "../../services/filmRoom/comment.js";
 import {GetSubs} from "../../services/filmRoom/substitution.js";
 import Loader from "../../components/universal/Loader.jsx";
+import AddStat from "../../components/filmRoom/AddStat.jsx";
+import AddAnalysis from "../../components/filmRoom/AddAnalysis.jsx";
 
 function EditGame(){
     const navigate = useNavigate();
@@ -22,12 +24,22 @@ function EditGame(){
     const [shootingStats,setShootingStats] = useState(null)
     const [comments,setComments] = useState(null)
     const [subs,setSubs] = useState(null)
+    const [participants, setParticipants] = useState([]);
+    const [starters, setStarters] = useState([]);
+    const [bench, setBench] = useState([]);
+    const [allPlayers, setAllPlayers] = useState([]);
+    const [videoSeek, setVideoSeek] = useState(null);
+    const [activeTab, setActiveTab] = useState(0);
+    const [selectedPlayerId, setSelectedPlayerId] = useState(null);
+    const [subMode, setSubMode] = useState(false); // substitution mode
+    const [subOutPlayerId, setSubOutPlayerId] = useState(null); // who is being subbed out
+    const videoRef = useRef();
 
     useEffect(() => {
         const storedTeams = JSON.parse(localStorage.getItem("teams"));
         if (storedTeams && teamId) {
             setTeams(storedTeams);
-            }
+        }
     }, [teamId]);
 
     useEffect(()=>{
@@ -78,18 +90,331 @@ function EditGame(){
         fetchGameStatsAndAnalysis()
     },[token,gameId])
 
+    // Fetch all team players for modal
+    useEffect(() => {
+        const fetchAllPlayers = async () => {
+            if (!token || !teamId) return;
+            try {
+                const teamPlayers = await GetTeamPlayers(token, teamId);
+                setAllPlayers(teamPlayers);
+            } catch (error) {
+                console.error("Error fetching team players:", error);
+                setAllPlayers([]);
+            }
+        };
+        fetchAllPlayers();
+    }, [token, teamId]);
+
+    // Fetch participants and starters/bench
+    useEffect(() => {
+        const fetchParticipantsAndStarters = async () => {
+            if (!token || !gameId || !teamId) return;
+            try {
+                const teamPlayers = await GetTeamPlayers(token, teamId);
+                const gameParticipants = await GetGameParticipants(token, gameId);
+                const participantIds = gameParticipants.map(p => String(p.user_id));
+                const participantObjs = teamPlayers.filter(p => participantIds.includes(String(p.user_id)));
+
+                // Get starters from subs (timestamp_seconds === 0)
+                let startersList = [];
+                if (subs && Array.isArray(subs)) {
+                    const startersSub = subs.find(s => s.timestamp_seconds === 0);
+                    if (startersSub && startersSub.on_court) {
+                        if (typeof startersSub.on_court === "string") {
+                            try {
+                                startersList = JSON.parse(startersSub.on_court);
+                            } catch {
+                                startersList = [];
+                            }
+                        } else if (Array.isArray(startersSub.on_court)) {
+                            startersList = startersSub.on_court;
+                        }
+                    }
+                }
+                // Bench = participants - starters
+                const benchList = participantIds.filter(id => !startersList.map(String).includes(String(id)));
+
+                setParticipants(participantObjs);
+                setStarters(startersList);
+                setBench(benchList);
+            } catch (error) {
+                console.error("Error fetching participants or starters:", error);
+                setParticipants([]);
+                setStarters([]);
+                setBench([]);
+            }
+        };
+        fetchParticipantsAndStarters();
+    }, [token, gameId, teamId, subs]);
+
+    // Handler to add a player (participant) to the game
+    const handleAddPlayer = async ({ name, user_id }) => {
+        if (!token || !gameId || !user_id) return;
+        try {
+            // Call backend to add participant
+            await CreateGameParticipant(token, { game_id: gameId, user_id });
+
+            // Call backend to create box score for this participant
+            await CreateBoxScore(token, {
+                game_id: gameId,
+                user_id:user_id,
+                team_id: teamId,
+                is_opponent: false,
+                mins: 0,
+                ast: 0,
+                oreb: 0,
+                dreb: 0,
+                stl: 0,
+                blk: 0,
+                tov: 0,
+                fls: 0,
+                plus_minus: 0,
+                twopm: 0,
+                twopa: 0,
+                threepm: 0,
+                threepa: 0,
+                ftm: 0,
+                fta: 0,
+            });
+
+            // Add to participants state (optimistic update)
+            setParticipants(prev => [...prev, { name, user_id }]);
+            // Also update bench if not already in starters
+            setBench(prev => [...prev, user_id]);
+
+            // Add default stats for this player to basicStats and shootingStats
+            setBasicStats(prev => {
+                if (!prev) return prev;
+                // Avoid duplicate
+                if (prev.team.some(p => String(p.user_id) === String(user_id))) return prev;
+                return {
+                    ...prev,
+                    team: [
+                        ...prev.team,
+                        {
+                            user_id,
+                            name,
+                            mins: 0,
+                            pts: 0,
+                            ast: 0,
+                            reb: 0,
+                            oreb: 0,
+                            dreb: 0,
+                            stl: 0,
+                            blk: 0,
+                            tov: 0,
+                            fls: 0,
+                            eff: 0,
+                            plus_minus: 0
+                        }
+                    ]
+                };
+            });
+            setShootingStats(prev => {
+                if (!prev) return prev;
+                // Avoid duplicate
+                if (prev.team.some(p => String(p.user_id) === String(user_id))) return prev;
+                return {
+                    ...prev,
+                    team: [
+                        ...prev.team,
+                        {
+                            user_id,
+                            name,
+                            fgm: 0,
+                            fga: 0,
+                            fg_pct: 0,
+                            threepm: 0,
+                            threepa: 0,
+                            threep_pct: 0,
+                            ftm: 0,
+                            fta: 0,
+                            ft_pct: 0,
+                            efg_pct: 0,
+                            ts_pct: 0
+                        }
+                    ]
+                };
+            });
+        } catch (error) {
+            console.error("Failed to add player", error);
+            alert("Failed to add player. Make sure the user ID is valid.");
+        }
+    };
+
+    // Handler to seek video to a specific time
+    const handleSeekVideo = (seconds) => {
+        setVideoSeek(seconds);
+    };
+
+    // Helper to get player object by user_id
+    const getPlayerById = (user_id) => participants.find(p => String(p.user_id) === String(user_id));
+
+    // Handler for stat button click
+    const handleAddStat = (statType, playerObj) => {
+        if (statType === "substitution") {
+            if (!playerObj) return;
+            setSubMode(true);
+            setSubOutPlayerId(playerObj.user_id);
+            return;
+        }
+        if (!playerObj) return;
+        // Update local state for demonstration (replace with backend call in production)
+        setBasicStats(prev => {
+            if (!prev) return prev;
+            return {
+                ...prev,
+                team: prev.team.map(p =>
+                    String(p.user_id) === String(playerObj.user_id)
+                        ? {
+                            ...p,
+                            // Example stat update logic (customize as needed)
+                            pts: statType === "2p_make" ? (p.pts || 0) + 2 :
+                                 statType === "3p_make" ? (p.pts || 0) + 3 :
+                                 statType === "ft_make" ? (p.pts || 0) + 1 :
+                                 p.pts || 0,
+                            ast: statType === "ast" ? (p.ast || 0) + 1 : p.ast || 0,
+                            reb: (["oreb", "dreb"].includes(statType)) ? (p.reb || 0) + 1 : p.reb || 0,
+                            oreb: statType === "oreb" ? (p.oreb || 0) + 1 : p.oreb || 0,
+                            dreb: statType === "dreb" ? (p.dreb || 0) + 1 : p.dreb || 0,
+                            stl: statType === "stl" ? (p.stl || 0) + 1 : p.stl || 0,
+                            blk: statType === "blk" ? (p.blk || 0) + 1 : p.blk || 0,
+                            tov: statType === "tov" ? (p.tov || 0) + 1 : p.tov || 0,
+                            fls: statType === "fls" ? (p.fls || 0) + 1 : p.fls || 0,
+                            // Add more stat logic as needed
+                        }
+                        : p
+                )
+            };
+        });
+        setShootingStats(prev => {
+            if (!prev) return prev;
+            return {
+                ...prev,
+                team: prev.team.map(p =>
+                    String(p.user_id) === String(playerObj.user_id)
+                        ? {
+                            ...p,
+                            fgm: (["2p_make", "3p_make"].includes(statType)) ? (p.fgm || 0) + 1 : p.fgm || 0,
+                            fga: (["2p_make", "2p_miss", "3p_make", "3p_miss"].includes(statType)) ? (p.fga || 0) + 1 : p.fga || 0,
+                            threepm: statType === "3p_make" ? (p.threepm || 0) + 1 : p.threepm || 0,
+                            threepa: (["3p_make", "3p_miss"].includes(statType)) ? (p.threepa || 0) + 1 : p.threepa || 0,
+                            ftm: statType === "ft_make" ? (p.ftm || 0) + 1 : p.ftm || 0,
+                            fta: (["ft_make", "ft_miss"].includes(statType)) ? (p.fta || 0) + 1 : p.fta || 0,
+                            // Add more shooting stat logic as needed
+                        }
+                        : p
+                )
+            };
+        });
+    };
+
+    // Handler for row click in stats table
+    const handlePlayerRowClick = (user_id) => {
+        if (subMode) {
+            // Determine if subOutPlayerId is on court or on bench
+            const isSubOutOnCourt = starters.map(String).includes(String(subOutPlayerId));
+            const isClickedOnCourt = starters.map(String).includes(String(user_id));
+            // Only swap if clicking a player from the opposite group
+            if (
+                (isSubOutOnCourt && bench.map(String).includes(String(user_id))) ||
+                (!isSubOutOnCourt && starters.map(String).includes(String(user_id)))
+            ) {
+                // Swap subOutPlayerId with user_id
+                setStarters(prev =>
+                    isSubOutOnCourt
+                        ? prev.map(id => String(id) === String(subOutPlayerId) ? user_id : id)
+                        : prev.map(id => String(id) === String(user_id) ? subOutPlayerId : id)
+                );
+                setBench(prev =>
+                    isSubOutOnCourt
+                        ? prev.map(id => String(id) === String(user_id) ? subOutPlayerId : id)
+                        : prev.map(id => String(id) === String(subOutPlayerId) ? user_id : id)
+                );
+                setSelectedPlayerId(isSubOutOnCourt ? user_id : subOutPlayerId); // highlight the new on-court player
+                setSubMode(false);
+                setSubOutPlayerId(null);
+            }
+            return;
+        }
+        setSelectedPlayerId(user_id);
+    };
+
+    // Handler for adding a comment
+    const handleAddComment = async (commentText, timestamp) => {
+        // Add the new comment to the local comments state for immediate UI update
+        setComments(prev => [
+            ...(Array.isArray(prev) ? prev : []),
+            {
+                comment_text: commentText,
+                timestamp_seconds: timestamp,
+                // Optionally add other fields as needed
+            }
+        ]);
+        // Optionally, send to backend here
+        // Example: await CreateComment(token, { game_id: gameId, comment: commentText, timestamp_seconds: timestamp });
+    };
+
     return(
         <MainLayout teams={teams}>
             {!basicStats||!shootingStats||!comments?(
                 <Loader/>
             ):(
-                <>
-                    <VideoPlayer videoUrl={videoUrl}/>
-                    <EditTabContainer teamBasicStats={basicStats.team} opponentBasicStats={basicStats.opponent}
-                                      teamShootingStats={shootingStats.team}
-                                      opponentShootingStats={shootingStats.opponent} comments={{comments}} sub={subs}/>
-            </>
-    )}
+                <div className="editgame-main-layout">
+                    <div className="editgame-left-col">
+                        <div className="editgame-video-wrap">
+                            <VideoPlayer videoUrl={videoUrl} seekTo={videoSeek} onSeeked={() => setVideoSeek(null)} ref={videoRef} />
+                        </div>
+                        <div className="editgame-tab-actions">
+                            {(activeTab === 0|| activeTab === 1) && (
+                                <>
+                                    <AddStat
+                                        selectedPlayer={getPlayerById(selectedPlayerId)}
+                                        onAddStat={handleAddStat}
+                                        starters={starters}
+                                        bench={bench}
+                                    />
+                                    {subMode && (
+                                        <div style={{color: "#d32f2f", fontWeight: 500, marginBottom: 8}}>
+                                            Click a player {starters.map(String).includes(String(subOutPlayerId)) ? "on the bench" : "on court"} to substitute with <b>{getPlayerById(subOutPlayerId)?.name}</b>
+                                        </div>
+                                    )}
+                                </>
+                            )}
+                            {activeTab === 2 && (
+                                <AddAnalysis
+                                    onAddComment={handleAddComment}
+                                    currentTime={() =>
+                                        videoRef.current && typeof videoRef.current.currentTime === "number"
+                                            ? videoRef.current.currentTime
+                                            : 0
+                                    }
+                                />
+                            )}
+                        </div>
+                    </div>
+                    <div className="editgame-right-col">
+                        <EditTabContainer
+                            teamBasicStats={basicStats.team}
+                            opponentBasicStats={basicStats.opponent}
+                            teamShootingStats={shootingStats.team}
+                            opponentShootingStats={shootingStats.opponent}
+                            comments={{comments}}
+                            sub={subs}
+                            participants={participants}
+                            starters={starters}
+                            bench={bench}
+                            onAddPlayer={handleAddPlayer}
+                            allPlayers={allPlayers}
+                            onSeekVideo={handleSeekVideo}
+                            activeTab={activeTab}
+                            setActiveTab={setActiveTab}
+                            selectedPlayerId={selectedPlayerId}
+                            onPlayerRowClick={handlePlayerRowClick}
+                        />
+                    </div>
+                </div>
+            )}
         </MainLayout>
     )
 }

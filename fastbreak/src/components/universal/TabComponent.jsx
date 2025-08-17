@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import "./TabComponent.css"
 
-function Tabs({ tabs }) {
-	const [activeTab, setActiveTab] = useState(0);
+function TabComponent({ tabs, activeTab, setActiveTab }) {
+	const [internalActiveTab, internalSetActiveTab] = useState(0);
+
+	const currentActiveTab = activeTab !== undefined ? activeTab : internalActiveTab;
+	const currentSetActiveTab = setActiveTab || internalSetActiveTab;
 
 	return (
 		<div className="tab-container">
@@ -10,18 +13,18 @@ function Tabs({ tabs }) {
 				{tabs.map((tab, index) => (
 					<button
 						key={index}
-						className={`tab-button ${activeTab === index ? "active" : ""}`}
-						onClick={() => setActiveTab(index)}
+						className={`tab-button ${currentActiveTab === index ? "active" : ""}`}
+						onClick={() => currentSetActiveTab(index)}
 					>
 						{tab.label}
 					</button>
 				))}
 			</div>
 			<div className="tab-content">
-				{tabs[activeTab] && tabs[activeTab].content}
+				{tabs[currentActiveTab]?.content}
 			</div>
 		</div>
 	);
 }
 
-export default Tabs;
+export default TabComponent;

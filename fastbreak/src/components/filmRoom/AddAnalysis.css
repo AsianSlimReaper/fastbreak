@@ -1,0 +1,37 @@
+.add-analysis-form {
+    display: flex;
+    flex-direction: column;
+    width:100%;
+    gap: 8px;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    background: var(--background-colour);
+    border-radius: 8px;
+    padding: 14px 16px;
+}
+
+.add-analysis-textarea {
+    flex: 1;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--accent-colour);
+    font-size: 1rem;
+    resize: vertical;
+    min-height: 10rem;
+    background: var(--background-colour);
+    transition: border 0.18s;
+    width: 100%;
+}
+
+.add-analysis-textarea:focus {
+    border: 1.5px solid var(--accent-colour);
+    color:var(--text-colour);
+    outline: none;
+    background: var(--primary-colour);
+}
+
+
+.add-analysis-btn:disabled {
+    background: #b0b0b0;
+    cursor: not-allowed;
+}

@@ -49,7 +49,3 @@ def update_team_membership(membership_id: UUID, membership_data: TeamMembershipU
 @router.get("/memberships/{membership_id}", response_model=TeamMembershipRead)
 def get_team_membership(membership_id: UUID, db: Session = Depends(get_db)):
     return team_service.get_team_membership_by_id(db, membership_id)
-
-@router.get("/players/{team_id}",response_model = List[GetPlayers])
-def get_players(team_id:UUID,db:Session = Depends(get_db)):
-    return team_service.get_players_by_team_id(db, team_id)

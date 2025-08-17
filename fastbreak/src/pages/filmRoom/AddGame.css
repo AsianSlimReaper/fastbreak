@@ -1,0 +1,157 @@
+.add-game-container {
+    background-color: var(--background-colour);
+    color: var(--text-colour);
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    max-width: 800px;
+    margin: 2rem auto;
+}
+
+.add-game-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.add-game-form h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--accent-colour);
+    text-align: center;
+}
+
+.add-game-form input[type="date"],
+.add-game-form input[type="file"] {
+    padding: 0.7rem;
+    border: 1px solid var(--muted-colour);
+    border-radius: 8px;
+    background-color: var(--background-colour);
+    color: var(--text-colour);
+    font-size: 1rem;
+}
+
+.add-game-form input:focus {
+    outline: none;
+    border-color: var(--accent-colour);
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.05);
+}
+
+/* Section styling */
+.participants-section,
+.starters-section {
+    flex:1;
+    background-color: rgba(0,0,0,0.03);
+    border: 1px solid var(--muted-colour);
+    border-radius: 10px;
+    padding: 1rem;
+}
+
+.participants-section h3,
+.starters-section h3 {
+    margin-bottom: 0.8rem;
+    font-size: 1.2rem;
+    color: var(--accent-colour);
+}
+
+.participants-section ul,
+.starters-section ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* Player row clickable */
+.player-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.player-row:hover {
+    background-color: rgba(0,0,0,0.05);
+}
+
+/* Modern checkbox */
+.player-row input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--muted-colour);
+    border-radius: 4px;
+    background-color: var(--background-colour);
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.player-row input[type="checkbox"]:hover {
+    border-color: var(--accent-colour);
+}
+
+.player-row input[type="checkbox"]:checked {
+    background-color: var(--accent-colour);
+    border-color: var(--accent-colour);
+}
+
+.player-row input[type="checkbox"]:checked::after {
+    content: "";
+    position: absolute;
+    left: 4px;
+    top: 0px;
+    width: 5px;
+    height: 10px;
+    border: solid var(--background-colour);
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+    animation: checkmark 0.2s ease forwards;
+}
+
+@keyframes checkmark {
+    from {
+        opacity: 0;
+        transform: rotate(45deg) scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: rotate(45deg) scale(1);
+    }
+}
+
+.add-game-form button {
+    padding: 0.9rem 1.2rem;
+    border-radius: 10px;
+    background-color: var(--accent-colour);
+    color: var(--background-colour);
+    font-weight: bold;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.add-game-form button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.add-game-form button:hover:not(:disabled) {
+    background-color: var(--muted-colour);
+}
+
+.participant-wrapper{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    max-width: 100%;
+    gap: 2rem;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+    box-sizing: border-box;
+}

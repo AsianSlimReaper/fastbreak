@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-from backend.models.models import BoxScore, Game, GameParticipant,Comment,PlayByPlay, Substitution
+from backend.models.models import BoxScore, Game, GameParticipant,Comment,PlayByPlay, Substitution, TeamMembership, User
 from fastapi import HTTPException
 from backend.schemas.film_room import *
 from backend.utils.stat_calculations import *
@@ -106,8 +106,94 @@ def calculate_shooting_box_score(box_score):
 #Game Services
 
 def create_game(db: Session, new_game=CreateGame):
-    game = create_model(db, Game, new_game)
+    # Remove 'participants' from the dict before creating the Game model
+    game_data = new_game.model_dump(exclude={"participants"})
+    participants = new_game.participants if hasattr(new_game, "participants") else []
+    game = Game(**game_data)
+    db.add(game)
     try_commit_db(db, game)
+
+    # Add participants if provided, only if not already present
+    participant_objs = []
+    if participants:
+        for user_id in participants:
+            exists = db.execute(
+                select(GameParticipant).where(
+                    GameParticipant.game_id == game.id,
+                    GameParticipant.user_id == user_id
+                )
+            ).scalar_one_or_none()
+            if not exists:
+                participant_obj = GameParticipant(game_id=game.id, user_id=user_id)
+                db.add(participant_obj)
+                participant_objs.append(participant_obj)
+        db.commit()
+        for obj in participant_objs:
+            db.refresh(obj)
+
+    # Create box scores for all participants (team) if not already present
+    for user_id in participants:
+        exists = db.execute(
+            select(BoxScore).where(
+                BoxScore.game_id == game.id,
+                BoxScore.user_id == user_id,
+                BoxScore.is_opponent == False
+            )
+        ).scalar_one_or_none()
+        if not exists:
+            box_score = BoxScore(
+                game_id=game.id,
+                user_id=user_id,
+                team_id=new_game.team_id,
+                is_opponent=False,
+                mins=0,
+                ast=0,
+                oreb=0,
+                dreb=0,
+                stl=0,
+                blk=0,
+                tov=0,
+                fls=0,
+                plus_minus=0,
+                twopm=0,
+                twopa=0,
+                threepm=0,
+                threepa=0,
+                ftm=0,
+                fta=0,
+            )
+            db.add(box_score)
+
+    # Automatically create an opponent box score row for this game if not already present
+    exists_opp = db.execute(
+        select(BoxScore).where(
+            BoxScore.game_id == game.id,
+            BoxScore.is_opponent == True
+        )
+    ).scalar_one_or_none()
+    if not exists_opp:
+        opponent_box = BoxScore(
+            game_id=game.id,
+            is_opponent=True,
+            user_id=None,
+            mins=0,
+            ast=0,
+            oreb=0,
+            dreb=0,
+            stl=0,
+            blk=0,
+            tov=0,
+            fls=0,
+            plus_minus=0,
+            twopm=0,
+            twopa=0,
+            threepm=0,
+            threepa=0,
+            ftm=0,
+            fta=0,
+        )
+        db.add(opponent_box)
+    db.commit()
 
     return game
 
@@ -179,10 +265,34 @@ def delete_game(db: Session, game_id: UUID):
 
 #Game Participant Services
 def create_game_participant(db: Session, participant: CreateGameParticipant):
-    participant = create_model(db, GameParticipant, participant)
-    try_commit_db(db, participant)
+    # Only add if not already present
+    exists = db.execute(
+        select(GameParticipant).where(
+            GameParticipant.game_id == participant.game_id,
+            GameParticipant.user_id == participant.user_id
+        )
+    ).scalar_one_or_none()
+    if exists:
+        return exists
+    participant_obj = create_model(db, GameParticipant, participant)
+    try_commit_db(db, participant_obj)
 
-    return participant
+    return participant_obj
+
+def create_game_participants_bulk(db: Session, participants: list[CreateGameParticipant]):
+    created = []
+    for participant in participants:
+        obj = create_model(db, GameParticipant, participant)
+        db.add(obj)
+        created.append(obj)
+    try:
+        db.commit()
+        for obj in created:
+            db.refresh(obj)
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    return created
 
 
 def get_game_participants(db: Session, game_id: UUID):
@@ -190,10 +300,7 @@ def get_game_participants(db: Session, game_id: UUID):
         select(GameParticipant)
         .where(GameParticipant.game_id == game_id)
     ).scalars().all()
-
-    if not participants:
-        raise not_found_error()
-
+    # Return ORM objects directly for FastAPI to serialize using the schema
     return participants
 
 
@@ -215,14 +322,12 @@ def delete_participant(db: Session, game_id:UUID,user_id:UUID):
 
 #Box Score Services
 def create_box_scores(db: Session, box_scores: List[CreateBoxScore]):
-    box_score = []
-    for bs in box_scores:
-        obj = create_model(db, BoxScore, bs)
-        box_score.append(obj)
-
-        try_commit_db(db, obj)
-
-    return box_score
+    objs = [create_model(db, BoxScore, bs) for bs in box_scores]
+    db.add_all(objs)
+    db.commit()
+    for obj in objs:
+        db.refresh(obj)
+    return objs
 
 
 def get_basic_box_scores(db: Session, game_id: UUID):
@@ -236,14 +341,47 @@ def get_basic_box_scores(db: Session, game_id: UUID):
         .where(BoxScore.game_id == game_id, BoxScore.is_opponent == True)
     ).scalars().all()
 
-    team_scores = [
-        ReadBasicBoxScore(
-            user_id=bs.user_id,
-            name=bs.user.name if bs.user else "",
-            **calculate_basic_box_score(bs)
-        )
-        for bs in team_box_scores
-    ]
+    # Get all participants for the game
+    participants = db.execute(
+        select(GameParticipant)
+        .where(GameParticipant.game_id == game_id)
+    ).scalars().all()
+
+    # Map user_id to box score for quick lookup
+    box_score_map = {str(bs.user_id): bs for bs in team_box_scores if bs.user_id}
+
+    team_scores = []
+    for participant in participants:
+        user_id = participant.user_id
+        bs = box_score_map.get(str(user_id))
+        if bs:
+            team_scores.append(
+                ReadBasicBoxScore(
+                    user_id=bs.user_id,
+                    name=bs.user.name if bs.user else "",
+                    **calculate_basic_box_score(bs)
+                )
+            )
+        else:
+            # Default all stats to 0 if no box score exists
+            team_scores.append(
+                ReadBasicBoxScore(
+                    user_id=user_id,
+                    name=participant.user.name if participant.user else "",
+                    mins=0,
+                    pts=0,
+                    ast=0,
+                    reb=0,
+                    oreb=0,
+                    dreb=0,
+                    stl=0,
+                    blk=0,
+                    tov=0,
+                    fls=0,
+                    eff=0,
+                    plus_minus=0
+                )
+            )
 
     opponent_scores = [
         ReadBasicBoxScore(
@@ -271,14 +409,46 @@ def get_shooting_box_scores(db: Session, game_id: UUID):
         .where(BoxScore.game_id == game_id, BoxScore.is_opponent == True)
     ).scalars().all()
 
-    team_scores = [
-        ReadShootingBoxScore(
-            user_id=bs.user_id,
-            name=bs.user.name if bs.user else "",
-            **calculate_shooting_box_score(bs)
-        )
-        for bs in team_box_scores
-    ]
+    # Get all participants for the game
+    participants = db.execute(
+        select(GameParticipant)
+        .where(GameParticipant.game_id == game_id)
+    ).scalars().all()
+
+    # Map user_id to box score for quick lookup
+    box_score_map = {str(bs.user_id): bs for bs in team_box_scores if bs.user_id}
+
+    team_scores = []
+    for participant in participants:
+        user_id = participant.user_id
+        bs = box_score_map.get(str(user_id))
+        if bs:
+            team_scores.append(
+                ReadShootingBoxScore(
+                    user_id=bs.user_id,
+                    name=bs.user.name if bs.user else "",
+                    **calculate_shooting_box_score(bs)
+                )
+            )
+        else:
+            # Default all stats to 0 if no box score exists
+            team_scores.append(
+                ReadShootingBoxScore(
+                    user_id=user_id,
+                    name=participant.user.name if participant.user else "",
+                    fgm=0,
+                    fga=0,
+                    fg_pct=0,
+                    threepm=0,
+                    threepa=0,
+                    threep_pct=0,
+                    ftm=0,
+                    fta=0,
+                    ft_pct=0,
+                    efg_pct=0,
+                    ts_pct=0
+                )
+            )
 
     opponent_scores = [
         ReadShootingBoxScore(
@@ -341,16 +511,18 @@ def update_box_score(db: Session, box_scores: List[UpdateBoxScore]):
 
     return updated_bs
 
-#comment
-def create_comment(db:Session, comments:List[CreateComment]):
-    created_comments =[]
-    for comment in comments:
-        new_comment = create_model(db,Comment,comment)
-        created_comments.append(new_comment)
 
-    try_commit_db(db,created_comments)
+def create_comment(db: Session, comments: List[CreateComment]):
+    created_comments = [create_model(db, Comment, comment) for comment in comments]
+
+    db.add_all(created_comments)
+    db.commit()
+    for comment in created_comments:
+        db.refresh(comment)
 
     return created_comments
+
+
 
 def get_comments(db:Session, game_id: UUID):
     comments = db.execute(
@@ -446,3 +618,19 @@ def add_subs(db:Session,new_sub:List[CreateSubs]):
         new_subs.append(subs)
 
     return new_subs
+
+def get_team_players(db: Session, team_id: UUID):
+    memberships = db.execute(
+        select(TeamMembership)
+        .where(TeamMembership.team_id == team_id, TeamMembership.role == "player")
+    ).scalars().all()
+    if not memberships:
+        raise not_found_error()
+    players = []
+    for m in memberships:
+        user = db.execute(select(User).where(User.id == m.user_id)).scalar_one_or_none()
+        if user:
+            players.append({"user_id": user.id, "name": user.name})
+    if not players:
+        raise not_found_error()
+    return players

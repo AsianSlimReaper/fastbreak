@@ -102,13 +102,3 @@ def update_team_service(db: Session, team_id: UUID, team: TeamUpdate):
     db.refresh(existing_team)
     return existing_team
 
-def get_players_by_team_id(db:Session, team_id: UUID):
-    players = db.execute(
-        select(TeamMembership)
-        .where(TeamMembership.team_id == team_id,
-               TeamMembership.role == "player")
-    ).scalars().all()
-    if not players:
-        raise HTTPException(status_code=404, detail="players not found")
-
-    return players
