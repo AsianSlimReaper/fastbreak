@@ -44,7 +44,6 @@ function BasicStatsTable({
 				<thead>
 					<tr>
 						<th>Name</th>
-						<th>Mins</th>
 						<th>PTS</th>
 						<th>AST</th>
 						<th>REB</th>
@@ -76,7 +75,6 @@ function BasicStatsTable({
 								}}
 							>
 								<td>{player.name}</td>
-								<td>{stats.mins ?? ""}</td>
 								<td>{stats.pts ?? ""}</td>
 								<td>{stats.ast ?? ""}</td>
 								<td>{stats.reb ?? ""}</td>
@@ -99,7 +97,6 @@ function BasicStatsTable({
 				<thead>
 					<tr>
 						<th>Name</th>
-						<th>Mins</th>
 						<th>PTS</th>
 						<th>AST</th>
 						<th>REB</th>
@@ -131,7 +128,6 @@ function BasicStatsTable({
 								}}
 							>
 								<td>{player.name}</td>
-								<td>{stats.mins ?? ""}</td>
 								<td>{stats.pts ?? ""}</td>
 								<td>{stats.ast ?? ""}</td>
 								<td>{stats.reb ?? ""}</td>
@@ -147,7 +143,7 @@ function BasicStatsTable({
 						);
 					})}
 					<tr>
-						<td colSpan='13' style={{textAlign:'center'}}>
+						<td colSpan='12' style={{textAlign:'center'}}>
 							<ButtonComponent onClick={() => setShowAdd(true)}>Add Player</ButtonComponent>
 							{showAdd && (
 								<div className="modal-backdrop">
@@ -184,7 +180,6 @@ function BasicStatsTable({
 				<thead>
 					<tr>
 						<th>Name</th>
-						<th>Mins</th>
 						<th>PTS</th>
 						<th>AST</th>
 						<th>REB</th>
@@ -202,7 +197,6 @@ function BasicStatsTable({
 					{opponentStats.map((opponent) => (
 						<tr key={opponent.name}>
 							<td>{opponent.name}</td>
-							<td>{opponent.mins}</td>
 							<td>{opponent.pts}</td>
 							<td>{opponent.ast}</td>
 							<td>{opponent.reb}</td>

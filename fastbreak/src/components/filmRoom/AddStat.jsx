@@ -42,19 +42,25 @@ function AddStat({ selectedPlayer, onAddStat, starters = [], bench = [], allowOp
                 </button>
             )}
             <div className="add-stat-buttons">
-                {STAT_BUTTONS.map(btn => (
-                    <button
-                        key={btn.value}
-                        className="add-stat-btn"
-                        disabled={
-                            (!selectedPlayer && !isOpponentSelected && btn.value !== "substitution") ||
-                            (btn.value === "substitution" && (!selectedPlayer || starters.map(String).includes(String(selectedPlayer.user_id))))
-                        }
-                        onClick={() => onAddStat && onAddStat(btn.value, isOpponentSelected ? { user_id: null, name: 'Opponent', is_opponent: true } : selectedPlayer)}
-                    >
-                        {btn.label}
-                    </button>
-                ))}
+                {STAT_BUTTONS.map(btn => {
+                    // Disable all stat buttons except substitution for bench players
+                    const isBench = selectedPlayer && bench && bench.map(String).includes(String(selectedPlayer.user_id));
+                    const isSubBtn = btn.value === "substitution";
+                    return (
+                        <button
+                            key={btn.value}
+                            className="add-stat-btn"
+                            disabled={
+                                (!selectedPlayer && !isOpponentSelected && !isSubBtn) ||
+                                (isSubBtn && (!selectedPlayer || starters.map(String).includes(String(selectedPlayer.user_id)))) ||
+                                (isBench && !isSubBtn)
+                            }
+                            onClick={() => onAddStat && onAddStat(btn.value, isOpponentSelected ? { user_id: null, name: 'Opponent', is_opponent: true } : selectedPlayer)}
+                        >
+                            {btn.label}
+                        </button>
+                    );
+                })}
             </div>
         </div>
     );

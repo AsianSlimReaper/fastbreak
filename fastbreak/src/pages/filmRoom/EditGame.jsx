@@ -257,6 +257,21 @@ function EditGame(){
         setSelectedPlayerId(null);
     };
 
+    // Helper to recalculate efficiency and plus_minus for a player or opponent
+    function recalcEffAndPlusMinus(box, statType) {
+        // Calculate points
+        const pts = (box.twopm || 0) * 2 + (box.threepm || 0) * 3 + (box.ftm || 0);
+        // Calculate rebounds
+        const reb = (box.oreb || 0) + (box.dreb || 0);
+        // Calculate efficiency (EFF)
+        // EFF = (PTS + REB + AST + STL + BLK) - ((FGA - FGM) + (FTA - FTM) + TOV)
+        const fgm = (box.twopm || 0) + (box.threepm || 0);
+        const fga = (box.twopa || 0) + (box.threepa || 0);
+        const eff = (pts + reb + (box.ast || 0) + (box.stl || 0) + (box.blk || 0)) - ((fga - fgm) + ((box.fta || 0) - (box.ftm || 0)) + (box.tov || 0));
+        // Plus minus is not calculated here, but you could update it if you have logic
+        return { eff, plus_minus: box.plus_minus || 0 };
+    }
+
     // Handler for stat button click
     const handleAddStat = (statType, playerObj) => {
         if (statType === "substitution") {
@@ -266,31 +281,51 @@ function EditGame(){
             return;
         }
         if (!playerObj) return;
-        // If opponent is selected, update opponent stats
+        // Plus-minus logic
+        let plusMinusDelta = 0;
+        if (statType === "2p_make") plusMinusDelta = 2;
+        if (statType === "3p_make") plusMinusDelta = 3;
+        if (statType === "ft_make") plusMinusDelta = 1;
+        // If opponent is selected, update opponent stats and decrement team on-court plus-minus
         if (playerObj.is_opponent) {
             setBasicStats(prev => {
                 if (!prev) return prev;
+                // Decrement all on-court team players' plus-minus
+                const updatedTeam = prev.team.map(p => {
+                    let box = { ...p };
+                    if (starters.map(String).includes(String(p.user_id)) && plusMinusDelta !== 0) {
+                        box.plus_minus = (box.plus_minus || 0) - plusMinusDelta;
+                    }
+                    const { eff, plus_minus } = recalcEffAndPlusMinus(box, statType);
+                    return { ...box, eff, plus_minus };
+                });
                 return {
                     ...prev,
-                    opponent: prev.opponent.map(p =>
-                        p.user_id === null
-                            ? {
-                                ...p,
-                                pts: statType === "2p_make" ? (p.pts || 0) + 2 :
-                                     statType === "3p_make" ? (p.pts || 0) + 3 :
-                                     statType === "ft_make" ? (p.pts || 0) + 1 :
-                                     p.pts || 0,
-                                ast: statType === "ast" ? (p.ast || 0) + 1 : p.ast || 0,
-                                reb: (["oreb", "dreb"].includes(statType)) ? (p.reb || 0) + 1 : p.reb || 0,
-                                oreb: statType === "oreb" ? (p.oreb || 0) + 1 : p.oreb || 0,
-                                dreb: statType === "dreb" ? (p.dreb || 0) + 1 : p.dreb || 0,
-                                stl: statType === "stl" ? (p.stl || 0) + 1 : p.stl || 0,
-                                blk: statType === "blk" ? (p.blk || 0) + 1 : p.blk || 0,
-                                tov: statType === "tov" ? (p.tov || 0) + 1 : p.tov || 0,
-                                fls: statType === "fls" ? (p.fls || 0) + 1 : p.fls || 0,
-                            }
-                            : p
-                    )
+                    team: updatedTeam,
+                    opponent: prev.opponent.map(p => {
+                        if (p.user_id === null) {
+                            let box = { ...p };
+                            if (statType === "2p_make") { box.pts = (box.pts || 0) + 2; box.twopm = (box.twopm || 0) + 1; box.twopa = (box.twopa || 0) + 1; }
+                            if (statType === "2p_miss") { box.twopa = (box.twopa || 0) + 1; }
+                            if (statType === "3p_make") { box.pts = (box.pts || 0) + 3; box.threepm = (box.threepm || 0) + 1; box.threepa = (box.threepa || 0) + 1; }
+                            if (statType === "3p_miss") { box.threepa = (box.threepa || 0) + 1; }
+                            if (statType === "ft_make") { box.pts = (box.pts || 0) + 1; box.ftm = (box.ftm || 0) + 1; box.fta = (box.fta || 0) + 1; }
+                            if (statType === "ft_miss") { box.fta = (box.fta || 0) + 1; }
+                            if (statType === "oreb") { box.oreb = (box.oreb || 0) + 1; }
+                            if (statType === "dreb") { box.dreb = (box.dreb || 0) + 1; }
+                            if (statType === "ast") { box.ast = (box.ast || 0) + 1; }
+                            if (statType === "tov") { box.tov = (box.tov || 0) + 1; }
+                            if (statType === "stl") { box.stl = (box.stl || 0) + 1; }
+                            if (statType === "blk") { box.blk = (box.blk || 0) + 1; }
+                            if (statType === "fls") { box.fls = (box.fls || 0) + 1; }
+                            // Increment opponent plus-minus
+                            box.plus_minus = (box.plus_minus || 0) + plusMinusDelta;
+                            const { eff } = recalcEffAndPlusMinus(box, statType);
+                            return { ...box, eff };
+                        }
+                        const { eff, plus_minus } = recalcEffAndPlusMinus(p, statType);
+                        return { ...p, eff, plus_minus };
+                    })
                 };
             });
             setShootingStats(prev => {
@@ -314,30 +349,46 @@ function EditGame(){
             });
             return;
         }
-        // Update local state for demonstration (replace with backend call in production)
+        // Team stat update: increment all on-court players' plus-minus if scoring
         setBasicStats(prev => {
             if (!prev) return prev;
             return {
                 ...prev,
-                team: prev.team.map(p =>
-                    String(p.user_id) === String(playerObj.user_id)
-                        ? {
-                            ...p,
-                            pts: statType === "2p_make" ? (p.pts || 0) + 2 :
-                                 statType === "3p_make" ? (p.pts || 0) + 3 :
-                                 statType === "ft_make" ? (p.pts || 0) + 1 :
-                                 p.pts || 0,
-                            ast: statType === "ast" ? (p.ast || 0) + 1 : p.ast || 0,
-                            reb: (["oreb", "dreb"].includes(statType)) ? (p.reb || 0) + 1 : p.reb || 0,
-                            oreb: statType === "oreb" ? (p.oreb || 0) + 1 : p.oreb || 0,
-                            dreb: statType === "dreb" ? (p.dreb || 0) + 1 : p.dreb || 0,
-                            stl: statType === "stl" ? (p.stl || 0) + 1 : p.stl || 0,
-                            blk: statType === "blk" ? (p.blk || 0) + 1 : p.blk || 0,
-                            tov: statType === "tov" ? (p.tov || 0) + 1 : p.tov || 0,
-                            fls: statType === "fls" ? (p.fls || 0) + 1 : p.fls || 0,
-                        }
-                        : p
-                )
+                team: prev.team.map(p => {
+                    let box = { ...p };
+                    if (String(p.user_id) === String(playerObj.user_id)) {
+                        if (statType === "2p_make") { box.pts = (box.pts || 0) + 2; box.twopm = (box.twopm || 0) + 1; box.twopa = (box.twopa || 0) + 1; }
+                        if (statType === "2p_miss") { box.twopa = (box.twopa || 0) + 1; }
+                        if (statType === "3p_make") { box.pts = (box.pts || 0) + 3; box.threepm = (box.threepm || 0) + 1; box.threepa = (box.threepa || 0) + 1; }
+                        if (statType === "3p_miss") { box.threepa = (box.threepa || 0) + 1; }
+                        if (statType === "ft_make") { box.pts = (box.pts || 0) + 1; box.ftm = (box.ftm || 0) + 1; box.fta = (box.fta || 0) + 1; }
+                        if (statType === "ft_miss") { box.fta = (box.fta || 0) + 1; }
+                        if (statType === "oreb") { box.oreb = (box.oreb || 0) + 1; }
+                        if (statType === "dreb") { box.dreb = (box.dreb || 0) + 1; }
+                        if (statType === "ast") { box.ast = (box.ast || 0) + 1; }
+                        if (statType === "tov") { box.tov = (box.tov || 0) + 1; }
+                        if (statType === "stl") { box.stl = (box.stl || 0) + 1; }
+                        if (statType === "blk") { box.blk = (box.blk || 0) + 1; }
+                        if (statType === "fls") { box.fls = (box.fls || 0) + 1; }
+                    }
+                    // If this player is on court and it's a scoring play, update plus-minus
+                    if (starters.map(String).includes(String(p.user_id)) && plusMinusDelta !== 0) {
+                        box.plus_minus = (box.plus_minus || 0) + plusMinusDelta;
+                    }
+                    const { eff, plus_minus } = recalcEffAndPlusMinus(box, statType);
+                    return { ...box, eff, plus_minus };
+                }),
+                opponent: prev.opponent.map(p => {
+                    // Decrement opponent plus-minus when team scores
+                    if (p.user_id === null && plusMinusDelta !== 0) {
+                        let box = { ...p };
+                        box.plus_minus = (box.plus_minus || 0) - plusMinusDelta;
+                        const { eff } = recalcEffAndPlusMinus(box, statType);
+                        return { ...box, eff };
+                    }
+                    const { eff, plus_minus } = recalcEffAndPlusMinus(p, statType);
+                    return { ...p, eff, plus_minus };
+                })
             };
         });
         setShootingStats(prev => {
