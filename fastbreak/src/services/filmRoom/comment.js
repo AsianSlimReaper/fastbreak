@@ -15,3 +15,22 @@ export const GetComments = async(token,gameId) =>{
 		throw error
 	}
 }
+
+export const CreateComment = async (token, comments) => {
+  	try {
+    	const response = await axios.post(
+      	`${BASE_URL}/film-room/comments`,
+      		Array.isArray(comments) ? comments : [comments], // ensure it's an array
+      		{
+        		headers: {
+          			'Authorization': `Bearer ${token}`,
+          			'Content-Type': 'application/json' // make sure content type is JSON
+        		}
+      		}
+    	);
+    	return response.data;
+  	} catch (error) {
+    	console.error("error creating comment", error);
+    	throw error;
+  	}
+};

@@ -7,11 +7,15 @@ import MainLayout from "../../components/main/MainLayout.jsx";
 import VideoPlayer from "../../components/filmRoom/VideoPlayer.jsx";
 import EditTabContainer from "../../components/filmRoom/EditTabContainer.jsx";
 import {GetBasicStats, GetShootingStats} from "../../services/filmRoom/stats.js";
-import {GetComments} from "../../services/filmRoom/comment.js";
-import {GetSubs} from "../../services/filmRoom/substitution.js";
+import {CreateComment, GetComments} from "../../services/filmRoom/comment.js";
+import {CreateSubs, GetSubs} from "../../services/filmRoom/substitution.js";
 import Loader from "../../components/universal/Loader.jsx";
 import AddStat from "../../components/filmRoom/AddStat.jsx";
 import AddAnalysis from "../../components/filmRoom/AddAnalysis.jsx";
+import { CreatePlayByPlays } from "../../services/filmRoom/playByPlay.js";
+import BasicStatsTable from "../../components/filmRoom/BasicStatsTable.jsx";
+import {UpdateBoxScore} from "../../services/filmRoom/boxScore.js";
+import ButtonComponent from "../../components/universal/ButtonComponent.jsx";
 
 function EditGame(){
     const navigate = useNavigate();
@@ -31,10 +35,14 @@ function EditGame(){
     const [videoSeek, setVideoSeek] = useState(null);
     const [activeTab, setActiveTab] = useState(0);
     const [selectedPlayerId, setSelectedPlayerId] = useState(null);
-    const [subMode, setSubMode] = useState(false); // substitution mode
-    const [subOutPlayerId, setSubOutPlayerId] = useState(null); // who is being subbed out
+    const [subMode, setSubMode] = useState(false);
+    const [subOutPlayerId, setSubOutPlayerId] = useState(null);
     const [isOpponentSelected, setIsOpponentSelected] = useState(false);
     const videoRef = useRef();
+
+    const [commentsList, setCommentsList] = useState([])
+    const [playByPlayList, setPlayByPlayList] = useState([])
+    const [subsList,setSubsList] = useState([])
 
     useEffect(() => {
         const storedTeams = JSON.parse(localStorage.getItem("teams"));
@@ -148,6 +156,12 @@ function EditGame(){
         fetchParticipantsAndStarters();
     }, [token, gameId, teamId, subs]);
 
+
+    // Handler to add new play-by-play entries and update state
+    const handleAddPlayByPlays = async (newPlayByPlays) => {
+        setPlayByPlayList(prev => [...prev, ...newPlayByPlays]);
+        console.log(playByPlayList);
+    }
     // Handler to add a player (participant) to the game
     const handleAddPlayer = async ({ name, user_id }) => {
         if (!token || !gameId || !user_id) return;
@@ -161,7 +175,6 @@ function EditGame(){
                 user_id:user_id,
                 team_id: teamId,
                 is_opponent: false,
-                mins: 0,
                 ast: 0,
                 oreb: 0,
                 dreb: 0,
@@ -195,7 +208,6 @@ function EditGame(){
                         {
                             user_id,
                             name,
-                            mins: 0,
                             pts: 0,
                             ast: 0,
                             reb: 0,
@@ -258,17 +270,15 @@ function EditGame(){
     };
 
     // Helper to recalculate efficiency and plus_minus for a player or opponent
-    function recalcEffAndPlusMinus(box, statType) {
+    function recalcEffAndPlusMinus(box) {
         // Calculate points
         const pts = (box.twopm || 0) * 2 + (box.threepm || 0) * 3 + (box.ftm || 0);
         // Calculate rebounds
         const reb = (box.oreb || 0) + (box.dreb || 0);
         // Calculate efficiency (EFF)
-        // EFF = (PTS + REB + AST + STL + BLK) - ((FGA - FGM) + (FTA - FTM) + TOV)
         const fgm = (box.twopm || 0) + (box.threepm || 0);
         const fga = (box.twopa || 0) + (box.threepa || 0);
         const eff = (pts + reb + (box.ast || 0) + (box.stl || 0) + (box.blk || 0)) - ((fga - fgm) + ((box.fta || 0) - (box.ftm || 0)) + (box.tov || 0));
-        // Plus minus is not calculated here, but you could update it if you have logic
         return { eff, plus_minus: box.plus_minus || 0 };
     }
 
@@ -286,6 +296,21 @@ function EditGame(){
         if (statType === "2p_make") plusMinusDelta = 2;
         if (statType === "3p_make") plusMinusDelta = 3;
         if (statType === "ft_make") plusMinusDelta = 1;
+        // Add play-by-play entry for stat (not substitution)
+        const pbpDescription = playerObj.is_opponent
+            ? `Opponent: ${statType.replace(/_/g, ' ')}`
+            : `${playerObj.name}: ${statType.replace(/_/g, ' ')}`;
+
+        const pbpEvent = {
+            user_id: playerObj.is_opponent ? null : playerObj.user_id,
+            game_id: gameId,
+            timestamp_seconds: videoRef.current && typeof videoRef.current.currentTime === "number" ? Math.floor(videoRef.current.currentTime) : 0,
+            is_opponent: !!playerObj.is_opponent,
+            event_type: statType,
+            description: pbpDescription
+        };
+        handleAddPlayByPlays([pbpEvent]);
+
         // If opponent is selected, update opponent stats and decrement team on-court plus-minus
         if (playerObj.is_opponent) {
             setBasicStats(prev => {
@@ -423,12 +448,11 @@ function EditGame(){
                 (isSubOutOnCourt && bench.map(String).includes(String(user_id))) ||
                 (!isSubOutOnCourt && starters.map(String).includes(String(user_id)))
             ) {
-                // Swap subOutPlayerId with user_id
-                setStarters(prev =>
-                    isSubOutOnCourt
-                        ? prev.map(id => String(id) === String(subOutPlayerId) ? user_id : id)
-                        : prev.map(id => String(id) === String(user_id) ? subOutPlayerId : id)
-                );
+                // Compute new starters after swap
+                const newStarters = isSubOutOnCourt
+                    ? starters.map(id => String(id) === String(subOutPlayerId) ? user_id : id)
+                    : starters.map(id => String(id) === String(user_id) ? subOutPlayerId : id);
+                setStarters(newStarters);
                 setBench(prev =>
                     isSubOutOnCourt
                         ? prev.map(id => String(id) === String(user_id) ? subOutPlayerId : id)
@@ -437,6 +461,15 @@ function EditGame(){
                 setSelectedPlayerId(isSubOutOnCourt ? user_id : subOutPlayerId); // highlight the new on-court player
                 setSubMode(false);
                 setSubOutPlayerId(null);
+                // Add to subsList
+                setSubsList(prev => [
+                    ...prev,
+                    {
+                        game_id: gameId,
+                        timestamp_seconds: videoRef.current && typeof videoRef.current.currentTime === "number" ? Math.floor(videoRef.current.currentTime) : 0,
+                        on_court: newStarters.map(String)
+                    }
+                ]);
             }
             return;
         }
@@ -451,12 +484,83 @@ function EditGame(){
             {
                 comment_text: commentText,
                 timestamp_seconds: timestamp,
-                // Optionally add other fields as needed
             }
         ]);
-        // Optionally, send to backend here
-        // Example: await CreateComment(token, { game_id: gameId, comment: commentText, timestamp_seconds: timestamp });
+
+        setCommentsList(prev => [...prev, {
+            comment_text: commentText,
+            timestamp_seconds: timestamp,
+            game_id: gameId,}]);
+
+        console.log(commentsList)
     };
+
+    const getTableData = () => {
+        if (!basicStats || !shootingStats) return [];
+        // Map user_id to shooting stats for quick lookup
+        const shootingMap = (shootingStats.team || []).reduce((acc, s) => {
+            acc[String(s.user_id)] = s;
+            return acc;
+        }, {});
+        // Combine basic and shooting stats for each player
+        return (basicStats.team || []).map((p) => {
+            const shooting = shootingMap[String(p.user_id)] || {};
+            return {
+                user_id: p.user_id,
+                name: p.name,
+                ast: p.ast || 0,
+                oreb: p.oreb || 0,
+                dreb: p.dreb || 0,
+                stl: p.stl || 0,
+                blk: p.blk || 0,
+                tov: p.tov || 0,
+                fls: p.fls || 0,
+                plus_minus: p.plus_minus || 0,
+                // Shooting stats
+                twopm: shooting.fgm - shooting.threepm || 0,
+                twopa: shooting.fga - shooting.threepa || 0,
+                fg_pct: shooting.fg_pct || 0,
+                threepm: shooting.threepm || 0,
+                threepa: shooting.threepa || 0,
+                ftm: shooting.ftm || 0,
+                fta: shooting.fta || 0
+            };
+        });
+    }
+
+    const handleSaveData = async() =>{
+        if (!token || !gameId) return;
+        try {
+            const StatsData = getTableData();
+            // Only update box scores if there is data
+            if (StatsData && StatsData.length > 0) {
+                const statsResponse = await UpdateBoxScore(token, gameId, StatsData);
+                console.log(statsResponse);
+            }
+            // Only send play by plays if there are new ones
+            if (playByPlayList && playByPlayList.length > 0) {
+                const pbpResponse = await CreatePlayByPlays(token, playByPlayList);
+                console.log(pbpResponse);
+            }
+            // Only send comments if there are new ones
+            if (commentsList && commentsList.length > 0) {
+                const commentsResponse = await CreateComment(token, commentsList);
+                console.log(commentsResponse);
+            }
+            // Only send subs if there are new ones
+            if (subsList && subsList.length > 0) {
+                const subsResponse = await CreateSubs(token, subsList);
+                console.log(subsResponse);
+            }
+            setPlayByPlayList([])
+            setSubsList([])
+            setCommentsList([])
+            alert("Data saved successfully!");
+        } catch (error) {
+            console.error("Failed to save data", error);
+            alert("Failed to save data");
+        }
+    }
 
     return(
         <MainLayout teams={teams}>
@@ -498,6 +602,7 @@ function EditGame(){
                                 />
                             )}
                         </div>
+                        <ButtonComponent onClick={handleSaveData}>SaveData</ButtonComponent>
                     </div>
                     <div className="editgame-right-col">
                         <EditTabContainer
