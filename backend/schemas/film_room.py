@@ -126,25 +126,24 @@ class ReadAdvancedTeamStats(Base):
 
 
 class UpdateBoxScore(Base):
-    id: UUID
-    user_id: Optional[UUID]
-    team_id: Optional[UUID]
-    is_opponent: Optional[bool]
-    mins: Optional[float]
-    ast: Optional[int]
-    oreb: Optional[int]
-    dreb: Optional[int]
-    stl: Optional[int]
-    blk: Optional[int]
-    tov: Optional[int]
-    fls: Optional[int]
-    twopm: Optional[int]
-    twopa: Optional[int]
-    threepm: Optional[int]
-    threepa: Optional[int]
-    ftm: Optional[int]
-    fta: Optional[int]
-    plus_minus: Optional[int]
+    user_id: Optional[UUID] = None
+    team_id: Optional[UUID] = None
+    is_opponent: Optional[bool] = None
+    mins: Optional[float] = None
+    ast: Optional[int] = None
+    oreb: Optional[int] = None
+    dreb: Optional[int] = None
+    stl: Optional[int] = None
+    blk: Optional[int] = None
+    tov: Optional[int] = None
+    fls: Optional[int] = None
+    twopm: Optional[int] = None
+    twopa: Optional[int] = None
+    threepm: Optional[int] = None
+    threepa: Optional[int] = None
+    ftm: Optional[int] = None
+    fta: Optional[int] = None
+    plus_minus: Optional[int] = None
 
 
 #comment
@@ -171,7 +170,7 @@ class UpdateComment(Base):
 #play by play
 class CreatePlayByPlay(Base):
     game_id: UUID
-    user_id: UUID
+    user_id: Optional[UUID] = None
     timestamp_seconds: int
     is_opponent: bool
     event_type: str
@@ -180,7 +179,7 @@ class CreatePlayByPlay(Base):
 
 class ReadPlayByPlay(Base):
     game_id: UUID
-    user_id: UUID
+    user_id: Optional[UUID] = None
     timestamp_seconds: int
     is_opponent: bool
     event_type: str

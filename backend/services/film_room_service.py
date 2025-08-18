@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import select
+from sqlalchemy import select, and_, or_
 from backend.models.models import BoxScore, Game, GameParticipant,Comment,PlayByPlay, Substitution, TeamMembership, User
 from fastapi import HTTPException
 from backend.schemas.film_room import *
@@ -494,22 +494,46 @@ def get_team_advanced_stats(db: Session, game_id: UUID):
         "pace": pace
     })
 
-def update_box_score(db: Session, box_scores: List[UpdateBoxScore]):
+from sqlalchemy import and_, or_
+
+
+def update_box_score(db: Session, box_scores: List[UpdateBoxScore], game_id: UUID):
     updated_bs = []
+
     for bs_update in box_scores:
-        box_score = db.execute(
-            select(BoxScore).where(BoxScore.id == bs_update.id)
-        ).scalar_one_or_none()
+        # Build the query
+        query = select(BoxScore).where(
+            BoxScore.game_id == game_id,
+            BoxScore.is_opponent == (bs_update.is_opponent or False)
+        )
+
+        # Only filter by user_id if it's provided (opponent row won't have user_id)
+        if bs_update.user_id:
+            query = query.where(BoxScore.user_id == bs_update.user_id)
+        if bs_update.team_id:
+            query = query.where(BoxScore.team_id == bs_update.team_id)
+
+        box_score = db.execute(query).scalar_one_or_none()
 
         if not box_score:
             raise not_found_error()
 
+        # Update the fields
         update_fields(box_score, bs_update)
         updated_bs.append(box_score)
 
-    try_commit_db(db,updated_bs)
+    # Commit all updates at once
+    try:
+        db.commit()
+        for bs in updated_bs:
+            db.refresh(bs)
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
 
     return updated_bs
+
+
 
 
 def create_comment(db: Session, comments: List[CreateComment]):
@@ -572,8 +596,8 @@ def create_play_by_plays(db:Session,play_by_plays:List[CreatePlayByPlay]):
     for play_by_play in play_by_plays:
         pbp = create_model(db,PlayByPlay,play_by_play)
         created_play_by_plays.append(pbp)
+        try_commit_db(db,pbp)
 
-    try_commit_db(db,created_play_by_plays)
     return created_play_by_plays
 
 def get_play_by_plays(db:Session, game_id: UUID):
