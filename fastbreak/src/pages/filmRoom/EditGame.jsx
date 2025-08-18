@@ -503,7 +503,7 @@ function EditGame(){
             return acc;
         }, {});
         // Combine basic and shooting stats for each player
-        return (basicStats.team || []).map((p) => {
+        const teamData = (basicStats.team || []).map((p) => {
             const shooting = shootingMap[String(p.user_id)] || {};
             return {
                 user_id: p.user_id,
@@ -523,9 +523,37 @@ function EditGame(){
                 threepm: shooting.threepm || 0,
                 threepa: shooting.threepa || 0,
                 ftm: shooting.ftm || 0,
-                fta: shooting.fta || 0
+                fta: shooting.fta || 0,
+                is_opponent: false
             };
         });
+        // Add opponent box score as another item in the array
+        let opponentData = [];
+        if (basicStats.opponent && basicStats.opponent.length > 0) {
+            const opp = basicStats.opponent[0];
+            const oppShooting = (shootingStats.opponent && shootingStats.opponent[0]) || {};
+            opponentData.push({
+                user_id: null,
+                name: opp.name,
+                ast: opp.ast || 0,
+                oreb: opp.oreb || 0,
+                dreb: opp.dreb || 0,
+                stl: opp.stl || 0,
+                blk: opp.blk || 0,
+                tov: opp.tov || 0,
+                fls: opp.fls || 0,
+                plus_minus: opp.plus_minus || 0,
+                twopm: oppShooting.fgm - oppShooting.threepm || 0,
+                twopa: oppShooting.fga - oppShooting.threepa || 0,
+                fg_pct: oppShooting.fg_pct || 0,
+                threepm: oppShooting.threepm || 0,
+                threepa: oppShooting.threepa || 0,
+                ftm: oppShooting.ftm || 0,
+                fta: oppShooting.fta || 0,
+                is_opponent: true
+            });
+        }
+        return [...teamData, ...opponentData];
     }
 
     const handleSaveData = async() =>{
@@ -556,11 +584,59 @@ function EditGame(){
             setSubsList([])
             setCommentsList([])
             alert("Data saved successfully!");
+
+            navigate(`/film-room/team/${teamId}`)
         } catch (error) {
             console.error("Failed to save data", error);
             alert("Failed to save data");
         }
     }
+
+    // Helper to get current on-court players based on subs and current video time
+    const getCurrentOnCourt = (currentTime) => {
+        if (!subs || !Array.isArray(subs) || subs.length === 0) return starters;
+        // Sort subs by timestamp_seconds ascending
+        const sortedSubs = [...subs].sort((a, b) => a.timestamp_seconds - b.timestamp_seconds);
+        // Find the latest sub at or before currentTime
+        let lastSub = sortedSubs[0];
+        for (let i = 0; i < sortedSubs.length; i++) {
+            if (sortedSubs[i].timestamp_seconds <= currentTime) {
+                lastSub = sortedSubs[i];
+            } else {
+                break;
+            }
+        }
+        // on_court may be stringified JSON or array
+        let onCourt;
+        if (typeof lastSub.on_court === 'string') {
+            try {
+                onCourt = JSON.parse(lastSub.on_court);
+            } catch {
+                onCourt = [];
+            }
+        } else {
+            onCourt = lastSub.on_court;
+        }
+        return onCourt || [];
+    };
+
+    // Update starters when video time changes
+    useEffect(() => {
+        if (!videoRef.current || !subs) return;
+        const handleTimeUpdate = () => {
+            const currentTime = Math.floor(videoRef.current.currentTime || 0);
+            const onCourt = getCurrentOnCourt(currentTime);
+            setStarters(onCourt);
+            // Update bench as well
+            const participantIds = participants.map(p => String(p.user_id));
+            setBench(participantIds.filter(id => !onCourt.map(String).includes(String(id))));
+        };
+        const video = videoRef.current;
+        if (video && video.addEventListener) {
+            video.addEventListener('timeupdate', handleTimeUpdate);
+            return () => video.removeEventListener('timeupdate', handleTimeUpdate);
+        }
+    }, [videoRef, subs, participants]);
 
     return(
         <MainLayout teams={teams}>
@@ -602,7 +678,7 @@ function EditGame(){
                                 />
                             )}
                         </div>
-                        <ButtonComponent onClick={handleSaveData}>SaveData</ButtonComponent>
+                        <ButtonComponent onClick={handleSaveData}>Save and Exit</ButtonComponent>
                     </div>
                     <div className="editgame-right-col">
                         <EditTabContainer
