@@ -20,12 +20,10 @@ def calculate_total_possessions(box_scores):
 def calculate_individual_averages(stats):
     total_points = total_assists = total_d_rebounds = total_o_rebounds = total_rebounds = total_steals = total_blocks = 0
     total_turnovers = total_fouls = total_plus_minus = total_efficiency = 0
-    total_minutes = 0
     num_games = len(stats)
 
     for stat in stats:
         points = calculate_pts(stat.twopm, stat.threepm, stat.ftm)
-        total_minutes += stat.mins
         total_points += points
         total_assists += stat.ast
         total_d_rebounds += stat.dreb
@@ -42,7 +40,6 @@ def calculate_individual_averages(stats):
 
     return{
         "games_played": num_games,
-        "mins": round(total_minutes / num_games, 1),
         "ppg": round(total_points / num_games, 1),
         "apg": round(total_assists / num_games, 1),
         "orpg": round(total_o_rebounds / num_games, 1),
@@ -56,7 +53,7 @@ def calculate_individual_averages(stats):
         "efficiency": round(total_efficiency / num_games, 1)
     } if num_games else {
         "games_played":0,"ppg": 0.0, "apg": 0.0, "rpg": 0.0,"orpg": 0.0,"drpg": 0.0, "spg": 0.0, "bpg": 0.0,
-        "mins": 0.0, "ast": 0.0, "oreb": 0.0, "dreb": 0.0, "reb": 0.0, "stl": 0.0, "blk": 0.0,
+         "ast": 0.0, "oreb": 0.0, "dreb": 0.0, "reb": 0.0, "stl": 0.0, "blk": 0.0,
         "tpg": 0.0, "fpg": 0.0, "plus_minus": 0.0, "efficiency": 0.0
     }
 
@@ -178,7 +175,6 @@ def get_team_basic_stats(team_id: UUID, db: Session):
         total_opp_pts += opp_pts
         total_team_poss += team_poss
         total_opp_poss += opp_poss
-        total_minutes += sum(box_score.mins for box_score in team_stats) / 5
         total_assists += sum(box_score.ast for box_score in team_stats)
         total_o_reb += sum(box_score.oreb for box_score in team_stats)
         total_d_reb += sum(box_score.dreb for box_score in team_stats)
@@ -200,7 +196,7 @@ def get_team_basic_stats(team_id: UUID, db: Session):
     off_rtg = calculate_off_rtg(total_team_pts, total_team_poss)
     def_rtg = calculate_def_rtg(total_opp_pts, total_opp_poss)
     net_rtg = calculate_net_rtg(off_rtg, def_rtg)
-    pace = calculate_pace(total_team_poss, total_opp_poss, total_minutes)
+    pace = calculate_pace(total_team_poss, total_opp_poss)
 
     return {
         "wins": wins,

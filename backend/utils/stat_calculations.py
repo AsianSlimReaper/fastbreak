@@ -122,8 +122,8 @@ def calculate_net_rtg(off_rtg, def_rtg):
 #purpose: calculate pace
 #input: team possessions, opponent possessions, minutes played
 #output: pace
-def calculate_pace(team_possessions, opponent_possessions, minutes_played):
+def calculate_pace(team_possessions, opponent_possessions):
     # returns the pace based on the total possessions of the team and opponent, and the minutes played
     total_possessions = team_possessions + opponent_possessions
     #checks if minutes played is zero to avoid division by zero
-    return round(48 * total_possessions / (2 * minutes_played), 1) if minutes_played else 0.0
+    return round(48 * total_possessions / (2 * 40), 1)

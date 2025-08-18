@@ -5,7 +5,6 @@ class IndividualBasicStats(BaseModel):
     user_id: UUID
     user_name: str
     games_played:int
-    mins: float
     ppg: float
     apg: float
     orpg: float

@@ -110,10 +110,8 @@ def get_player_profile(db:Session, team_id:UUID, user_id: UUID):
         total_threepm += stat.threepm
         total_ftm += stat.ftm
         total_fta += stat.fta
-        total_minutes += stat.mins
 
     player_stats ={
-        "mins":round(total_minutes,1) if num_games else 0.0,
         "ppg": round(total_points / num_games, 1) if num_games else 0.0,
         "apg": round(total_assists / num_games, 1) if num_games else 0.0,
         "rpg": round(total_rebounds / num_games, 1) if num_games else 0.0,

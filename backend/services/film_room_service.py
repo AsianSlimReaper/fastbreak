@@ -63,7 +63,6 @@ def calculate_basic_box_score(box_score):
                                       box_score.twopm + box_score.threepm, box_score.dreb + box_score.fta,
                                       box_score.oreb + box_score.ftm, box_score.dreb + box_score.tov)
     return ({
-        "mins": box_score.mins,
         "pts": points,
         "ast": box_score.ast,
         "reb": rebounds,
@@ -146,7 +145,6 @@ def create_game(db: Session, new_game=CreateGame):
                 user_id=user_id,
                 team_id=new_game.team_id,
                 is_opponent=False,
-                mins=0,
                 ast=0,
                 oreb=0,
                 dreb=0,
@@ -176,7 +174,6 @@ def create_game(db: Session, new_game=CreateGame):
             game_id=game.id,
             is_opponent=True,
             user_id=None,
-            mins=0,
             ast=0,
             oreb=0,
             dreb=0,
@@ -368,7 +365,6 @@ def get_basic_box_scores(db: Session, game_id: UUID):
                 ReadBasicBoxScore(
                     user_id=user_id,
                     name=participant.user.name if participant.user else "",
-                    mins=0,
                     pts=0,
                     ast=0,
                     reb=0,
@@ -480,12 +476,11 @@ def get_team_advanced_stats(db: Session, game_id: UUID):
     opp_pts = calculate_total_points(opponent_box_scores)
     team_poss = calculate_total_possessions(team_box_scores)
     opp_poss = calculate_total_possessions(opponent_box_scores)
-    total_mins = sum(tbs.mins for tbs in team_box_scores) / 5
 
     off_rtg = calculate_off_rtg(team_pts, team_poss)
     def_rtg = calculate_def_rtg(opp_pts, opp_poss)
     net_rtg = calculate_net_rtg(off_rtg, def_rtg)
-    pace = calculate_pace(team_poss, opp_poss, total_mins)
+    pace = calculate_pace(team_poss, opp_poss)
 
     return ({
         "off_rtg": off_rtg,

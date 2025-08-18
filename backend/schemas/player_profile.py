@@ -15,7 +15,6 @@ class PlayerSummary(BaseModel):
     }
 
 class PlayerProfileStats(BaseModel):
-    mins:float
     ppg: float
     apg: float
     rpg: float

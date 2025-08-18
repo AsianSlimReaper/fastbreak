@@ -98,7 +98,6 @@ def get_dashboard_team_stats(team_id: UUID, db:Session):
         total_opp_pts += opp_pts
         total_poss += team_poss
         total_opp_poss += opp_poss
-        total_minutes += sum(box_score.mins for box_score in team_stat)/5
 
         result = game_result(team_pts, opp_pts)
         if result == "win":

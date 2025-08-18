@@ -56,7 +56,6 @@ class CreateBoxScore(Base):
     user_id: Optional[UUID]
     team_id: Optional[UUID]
     is_opponent: Optional[bool]
-    mins: float
     ast: int
     oreb: int
     dreb: int
@@ -79,7 +78,6 @@ class ReadBoxScore(CreateBoxScore):
 class ReadBasicBoxScore(Base):
     user_id: Optional[UUID]
     name: str
-    mins: float
     pts: int
     ast: int
     reb: int
@@ -129,7 +127,6 @@ class UpdateBoxScore(Base):
     user_id: Optional[UUID] = None
     team_id: Optional[UUID] = None
     is_opponent: Optional[bool] = None
-    mins: Optional[float] = None
     ast: Optional[int] = None
     oreb: Optional[int] = None
     dreb: Optional[int] = None

@@ -91,7 +91,6 @@ class BoxScore(Base):
 
     is_opponent: Mapped[bool] = mapped_column(Boolean, default=False)
 
-    mins: Mapped[float] = mapped_column(Float, default=0)
     ast: Mapped[int] = mapped_column(Integer, default=0)
     oreb: Mapped[int] = mapped_column(Integer, default=0)
     dreb: Mapped[int] = mapped_column(Integer, default=0)
