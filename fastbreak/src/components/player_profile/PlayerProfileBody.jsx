@@ -6,10 +6,6 @@ function PlayerProfileBody({stats,recentGames}){
         <div className='player-profile-body'>
             <div className='player-profile-body-stats-grid'>
                 <div className='player-profile-body-stat'>
-                    <h4>Mins</h4>
-                    <p>{stats.mins}</p>
-                </div>
-                <div className='player-profile-body-stat'>
                     <h4>FG%</h4>
                     <p>{stats.fg_pct}%</p>
                 </div>

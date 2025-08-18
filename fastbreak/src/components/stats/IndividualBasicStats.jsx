@@ -10,7 +10,6 @@ function IndividualBasicStats({ stats}){
                     <tr>
                         <th>Name</th>
                         <th>Games Played</th>
-                        <th>Mins</th>
                         <th>PTS</th>
                         <th>AST</th>
                         <th>REB</th>
@@ -36,7 +35,6 @@ function IndividualBasicStats({ stats}){
                         <tr key={player.user_id}>
                             <td>{player.user_name}</td>
                             <td>{player.games_played}</td>
-                            <td>{player.mins}</td>
                             <td>{player.ppg}</td>
                             <td>{player.apg}</td>
                             <td>{player.rpg}</td>

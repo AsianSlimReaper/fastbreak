@@ -18,28 +18,39 @@ const STAT_BUTTONS = [
     { label: "Substitution", value: "substitution" }
 ];
 
-function AddStat({ selectedPlayer, onAddStat, starters = [], bench = [] }) {
+function AddStat({ selectedPlayer, onAddStat, starters = [], bench = [], allowOpponent = false, onSelectOpponent, isOpponentSelected }) {
     // Determine if selected player is on court
     const isOnCourt = selectedPlayer && starters && starters.map(String).includes(String(selectedPlayer.user_id));
 
     return (
         <div className="add-stat-panel">
             <div className="add-stat-selected">
-                {selectedPlayer
+                {selectedPlayer && !isOpponentSelected
                     ? <>Selected Player: <b>{selectedPlayer.name}</b></>
-                    : <span style={{ color: "#888" }}>Select a player in the table below</span>
+                    : isOpponentSelected
+                        ? <>Selected: <b>Opponent</b></>
+                        : <span style={{ color: "#888" }}>Select a player in the table below</span>
                 }
             </div>
+            {allowOpponent && (
+                <button
+                    className={`add-stat-btn add-stat-opponent-btn${isOpponentSelected ? ' selected' : ''}`}
+                    style={{ marginBottom: 8, background: isOpponentSelected ? '#d32f2f' : undefined }}
+                    onClick={onSelectOpponent}
+                >
+                    {isOpponentSelected ? 'Opponent Selected' : 'Select Opponent'}
+                </button>
+            )}
             <div className="add-stat-buttons">
                 {STAT_BUTTONS.map(btn => (
                     <button
                         key={btn.value}
                         className="add-stat-btn"
                         disabled={
-                            (!selectedPlayer && btn.value !== "substitution") ||
+                            (!selectedPlayer && !isOpponentSelected && btn.value !== "substitution") ||
                             (btn.value === "substitution" && (!selectedPlayer || starters.map(String).includes(String(selectedPlayer.user_id))))
                         }
-                        onClick={() => onAddStat && onAddStat(btn.value, selectedPlayer)}
+                        onClick={() => onAddStat && onAddStat(btn.value, isOpponentSelected ? { user_id: null, name: 'Opponent', is_opponent: true } : selectedPlayer)}
                     >
                         {btn.label}
                     </button>

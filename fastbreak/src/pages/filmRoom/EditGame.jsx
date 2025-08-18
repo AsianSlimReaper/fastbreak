@@ -33,6 +33,7 @@ function EditGame(){
     const [selectedPlayerId, setSelectedPlayerId] = useState(null);
     const [subMode, setSubMode] = useState(false); // substitution mode
     const [subOutPlayerId, setSubOutPlayerId] = useState(null); // who is being subbed out
+    const [isOpponentSelected, setIsOpponentSelected] = useState(false);
     const videoRef = useRef();
 
     useEffect(() => {
@@ -250,6 +251,12 @@ function EditGame(){
     // Helper to get player object by user_id
     const getPlayerById = (user_id) => participants.find(p => String(p.user_id) === String(user_id));
 
+    // Handler for selecting opponent
+    const handleSelectOpponent = () => {
+        setIsOpponentSelected(prev => !prev);
+        setSelectedPlayerId(null);
+    };
+
     // Handler for stat button click
     const handleAddStat = (statType, playerObj) => {
         if (statType === "substitution") {
@@ -259,6 +266,54 @@ function EditGame(){
             return;
         }
         if (!playerObj) return;
+        // If opponent is selected, update opponent stats
+        if (playerObj.is_opponent) {
+            setBasicStats(prev => {
+                if (!prev) return prev;
+                return {
+                    ...prev,
+                    opponent: prev.opponent.map(p =>
+                        p.user_id === null
+                            ? {
+                                ...p,
+                                pts: statType === "2p_make" ? (p.pts || 0) + 2 :
+                                     statType === "3p_make" ? (p.pts || 0) + 3 :
+                                     statType === "ft_make" ? (p.pts || 0) + 1 :
+                                     p.pts || 0,
+                                ast: statType === "ast" ? (p.ast || 0) + 1 : p.ast || 0,
+                                reb: (["oreb", "dreb"].includes(statType)) ? (p.reb || 0) + 1 : p.reb || 0,
+                                oreb: statType === "oreb" ? (p.oreb || 0) + 1 : p.oreb || 0,
+                                dreb: statType === "dreb" ? (p.dreb || 0) + 1 : p.dreb || 0,
+                                stl: statType === "stl" ? (p.stl || 0) + 1 : p.stl || 0,
+                                blk: statType === "blk" ? (p.blk || 0) + 1 : p.blk || 0,
+                                tov: statType === "tov" ? (p.tov || 0) + 1 : p.tov || 0,
+                                fls: statType === "fls" ? (p.fls || 0) + 1 : p.fls || 0,
+                            }
+                            : p
+                    )
+                };
+            });
+            setShootingStats(prev => {
+                if (!prev) return prev;
+                return {
+                    ...prev,
+                    opponent: prev.opponent.map(p =>
+                        p.user_id === null
+                            ? {
+                                ...p,
+                                fgm: (["2p_make", "3p_make"].includes(statType)) ? (p.fgm || 0) + 1 : p.fgm || 0,
+                                fga: (["2p_make", "2p_miss", "3p_make", "3p_miss"].includes(statType)) ? (p.fga || 0) + 1 : p.fga || 0,
+                                threepm: statType === "3p_make" ? (p.threepm || 0) + 1 : p.threepm || 0,
+                                threepa: (["3p_make", "3p_miss"].includes(statType)) ? (p.threepa || 0) + 1 : p.threepa || 0,
+                                ftm: statType === "ft_make" ? (p.ftm || 0) + 1 : p.ftm || 0,
+                                fta: (["ft_make", "ft_miss"].includes(statType)) ? (p.fta || 0) + 1 : p.fta || 0,
+                            }
+                            : p
+                    )
+                };
+            });
+            return;
+        }
         // Update local state for demonstration (replace with backend call in production)
         setBasicStats(prev => {
             if (!prev) return prev;
@@ -268,7 +323,6 @@ function EditGame(){
                     String(p.user_id) === String(playerObj.user_id)
                         ? {
                             ...p,
-                            // Example stat update logic (customize as needed)
                             pts: statType === "2p_make" ? (p.pts || 0) + 2 :
                                  statType === "3p_make" ? (p.pts || 0) + 3 :
                                  statType === "ft_make" ? (p.pts || 0) + 1 :
@@ -281,7 +335,6 @@ function EditGame(){
                             blk: statType === "blk" ? (p.blk || 0) + 1 : p.blk || 0,
                             tov: statType === "tov" ? (p.tov || 0) + 1 : p.tov || 0,
                             fls: statType === "fls" ? (p.fls || 0) + 1 : p.fls || 0,
-                            // Add more stat logic as needed
                         }
                         : p
                 )
@@ -301,7 +354,6 @@ function EditGame(){
                             threepa: (["3p_make", "3p_miss"].includes(statType)) ? (p.threepa || 0) + 1 : p.threepa || 0,
                             ftm: statType === "ft_make" ? (p.ftm || 0) + 1 : p.ftm || 0,
                             fta: (["ft_make", "ft_miss"].includes(statType)) ? (p.fta || 0) + 1 : p.fta || 0,
-                            // Add more shooting stat logic as needed
                         }
                         : p
                 )
@@ -369,10 +421,13 @@ function EditGame(){
                             {(activeTab === 0|| activeTab === 1) && (
                                 <>
                                     <AddStat
-                                        selectedPlayer={getPlayerById(selectedPlayerId)}
+                                        selectedPlayer={isOpponentSelected ? null : getPlayerById(selectedPlayerId)}
                                         onAddStat={handleAddStat}
                                         starters={starters}
                                         bench={bench}
+                                        allowOpponent={true}
+                                        onSelectOpponent={handleSelectOpponent}
+                                        isOpponentSelected={isOpponentSelected}
                                     />
                                     {subMode && (
                                         <div style={{color: "#d32f2f", fontWeight: 500, marginBottom: 8}}>
