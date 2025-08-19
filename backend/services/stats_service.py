@@ -57,9 +57,8 @@ def calculate_individual_averages(stats):
         "tpg": 0.0, "fpg": 0.0, "plus_minus": 0.0, "efficiency": 0.0
     }
 
-def calculate_shooting_averages(stats):
+def calculate_shooting_averages(stats,num_games):
     total_twopm = total_twopa = total_threepm = total_threepa = total_ftm = total_fta = 0
-    num_games = len(stats)
 
     for stat in stats:
         total_twopm += stat.twopm
@@ -230,7 +229,8 @@ def get_individual_shooting_stats(team_id: UUID, db: Session):
     results = []
 
     for user_id, stat_list in user_stats.items():
-        averages = calculate_shooting_averages(stat_list)
+        num_games = len(stat_list)
+        averages = calculate_shooting_averages(stat_list,num_games)
         user = db.get(User, user_id)
         results.append({
             "user_id": user_id,
@@ -245,6 +245,10 @@ def get_team_shooting_stats(team_id: UUID, db: Session):
         select(BoxScore).where(BoxScore.team_id == team_id, BoxScore.is_opponent == False)
     ).scalars().all()
 
+    games = db.execute(
+        select(Game).where(Game.team_id == team_id)
+    ).scalars().all()
+
     if not stats:
         return {
             "fgm": 0.0, "fga": 0.0, "fg_pct": 0.0,
@@ -254,6 +258,6 @@ def get_team_shooting_stats(team_id: UUID, db: Session):
             "efg_pct": 0.0, "ts_pct": 0.0
         }
 
-    averages = calculate_shooting_averages(stats)
+    averages = calculate_shooting_averages(stats,len(games))
 
     return averages

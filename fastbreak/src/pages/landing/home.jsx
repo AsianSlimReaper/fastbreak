@@ -4,10 +4,14 @@ import { Element } from 'react-scroll';
 import './home.css';
 import LandingNav from '../../components/landing/landingnav.jsx';
 import LandingIMG1 from '../../assets/LandingIMG1.png'
-import placeholder from '../../assets/placeholder.jpg'
 import {useNavigate} from "react-router-dom";
 import ButtonComponent from "../../components/universal/ButtonComponent.jsx";
 import Footer from "../../components/landing/Footer.jsx"
+import exampleImage from '../../assets/landing-preview.png';
+import statsIcon from '../../assets/stats-icon.png';
+import filmCameraIcon from '../../assets/film-camera-icon.png';
+import saveIcon from '../../assets/save-icon.webp';
+import pieChart from '../../assets/pie-chart-icon.png';
 
 function Home() {
     const navigate = useNavigate()
@@ -46,22 +50,22 @@ function Home() {
                     <div className='solution-icons-grid'>
                         <div className='solution-icon'>
                             <h3>View Film</h3>
-                            <img src={placeholder} alt='View Film' className='view-film-icon'/>
+                            <img src={filmCameraIcon} alt='View Film' className='view-film-icon'/>
                         </div>
                         <div className='solution-icon'>
                             <h3>Add Stats And Analysis</h3>
-                            <img src={placeholder} alt='Add Stats And Analysis' className='add-stats-icon'/>
+                            <img src={statsIcon} alt='Add Stats And Analysis' className='add-stats-icon'/>
                         </div>
                         <div className='solution-icon'>
                             <h3>Export</h3>
-                            <img src={placeholder} alt='Export' className='export-icon'/>
+                            <img src={saveIcon} alt='Export' className='export-icon'/>
                         </div>
                         <div className='solution-icon'>
                             <h3>Access insights</h3>
-                            <img src={placeholder} alt='Access Insights' className='access-insights-icon'/>
+                            <img src={pieChart} alt='Access Insights' className='access-insights-icon'/>
                         </div>
                         <div className='example-image'>
-                            <img src={placeholder} alt='FastBreak Example'/>
+                            <img src={exampleImage} alt='FastBreak Example'/>
                         </div>
                     </div>
                 </div>

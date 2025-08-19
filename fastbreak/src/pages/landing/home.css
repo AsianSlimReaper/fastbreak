@@ -95,6 +95,7 @@
   height: 90px;
   object-fit: contain;
   margin-bottom: 1rem;
+  filter: invert(1);
 }
 
 .solution-icon h3 {
