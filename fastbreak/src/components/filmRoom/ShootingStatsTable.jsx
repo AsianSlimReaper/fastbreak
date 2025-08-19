@@ -130,8 +130,8 @@ function ShootingStatsTable({teamStats, opponentStats, participants = [], starte
 				<thead>
 					<tr>
 						<th>Name</th>
-						<th>FGA</th>
 						<th>FGM</th>
+						<th>FGA</th>
 						<th>FG%</th>
 						<th>3PM</th>
 						<th>3PA</th>
@@ -147,8 +147,8 @@ function ShootingStatsTable({teamStats, opponentStats, participants = [], starte
 				{opponentStats.map((opponent)=>(
 					<tr key={opponent.name}>
 						<td>{opponent.name}</td>
-						<td>{opponent.fga}</td>
 						<td>{opponent.fgm}</td>
+						<td>{opponent.fga}</td>
 						<td>{calculateShootingPercentage(opponent.fgm,opponent.fga)}</td>
 						<td>{opponent.threepm}</td>
 						<td>{opponent.threepa}</td>
