@@ -3,18 +3,27 @@ import "./VideoPlayer.css";
 
 const VideoPlayer = forwardRef(function VideoPlayer({ videoUrl, seekTo, onSeeked }, ref) {
     const localRef = useRef();
-    const videoElementRef = ref || localRef;
+    // Always attach the ref to the video element
+    useEffect(() => {
+        if (ref) {
+            if (typeof ref === "function") {
+                ref(localRef.current);
+            } else {
+                ref.current = localRef.current;
+            }
+        }
+    }, [ref]);
 
     useEffect(() => {
         if (
             seekTo != null &&
-            videoElementRef.current &&
-            typeof videoElementRef.current.currentTime === "number"
+            localRef.current &&
+            typeof localRef.current.currentTime === "number"
         ) {
-            videoElementRef.current.currentTime = seekTo;
+            localRef.current.currentTime = seekTo;
             if (onSeeked) onSeeked();
         }
-    }, [seekTo, onSeeked, videoElementRef]);
+    }, [seekTo, onSeeked]);
 
     if (!videoUrl) {
         return <div style={{ textAlign: "center", padding: "2rem" }}>No video available.</div>;
@@ -22,7 +31,7 @@ const VideoPlayer = forwardRef(function VideoPlayer({ videoUrl, seekTo, onSeeked
 
     return (
         <video
-            ref={videoElementRef}
+            ref={localRef}
             src={videoUrl}
             controls
             style={{ width: "100%", height: "auto" }}

@@ -13,7 +13,6 @@ import Loader from "../../components/universal/Loader.jsx";
 import AddStat from "../../components/filmRoom/AddStat.jsx";
 import AddAnalysis from "../../components/filmRoom/AddAnalysis.jsx";
 import { CreatePlayByPlays } from "../../services/filmRoom/playByPlay.js";
-import BasicStatsTable from "../../components/filmRoom/BasicStatsTable.jsx";
 import {UpdateBoxScore} from "../../services/filmRoom/boxScore.js";
 import ButtonComponent from "../../components/universal/ButtonComponent.jsx";
 
@@ -489,7 +488,7 @@ function EditGame(){
 
         setCommentsList(prev => [...prev, {
             comment_text: commentText,
-            timestamp_seconds: timestamp,
+            timestamp_seconds: Math.round(timestamp),
             game_id: gameId,}]);
 
         console.log(commentsList)
@@ -572,6 +571,7 @@ function EditGame(){
             }
             // Only send comments if there are new ones
             if (commentsList && commentsList.length > 0) {
+                console.log(commentsList)
                 const commentsResponse = await CreateComment(token, commentsList);
                 console.log(commentsResponse);
             }

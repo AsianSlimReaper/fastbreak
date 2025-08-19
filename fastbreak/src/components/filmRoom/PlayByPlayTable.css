@@ -1,0 +1,35 @@
+.pbp-table-scroll {
+  max-height: 320px;
+  overflow-y: auto;
+  background: var(--background-colour);
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  margin-top: 8px;
+}
+
+.pbp-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+  background: var(--background-colour);
+}
+
+.pbp-table th, .pbp-table td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--accent-colour);
+}
+
+.pbp-table th {
+  background: var(--primary-colour);
+  font-weight: 600;
+  color: var(--text-colour);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.pbp-table tr:hover:not(.pbp-row-highlight) {
+  background: var(--secondary-colour);
+}
+
