@@ -19,9 +19,6 @@ function MainNav({ teams }) {
         navigate('/');
     };
 
-    const navigateProfile = () => {
-        navigate('/profile');
-    };
 
     const navigateHome = () => {
         navigate('/teams');
@@ -57,7 +54,6 @@ function MainNav({ teams }) {
                 </button>
                 {showDropdown && (
                     <div className="dropdown-menu">
-                        <p onClick={navigateProfile}>Profile</p>
                         <p onClick={logout}>Logout</p>
                     </div>
                 )}
