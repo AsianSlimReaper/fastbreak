@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from uuid import UUID
 from datetime import date
 
+# please read init.py for more information about the schemas
 class PlayerSummary(BaseModel):
     user_name: str
     user_id: UUID

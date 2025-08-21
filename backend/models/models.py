@@ -7,6 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship, DeclarativeBase
 from sqlalchemy.dialects.postgresql import UUID
 from typing import List
 
+# this is my database models file for tables and columns
 
 class Base(DeclarativeBase):
     pass

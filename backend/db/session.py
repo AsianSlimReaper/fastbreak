@@ -17,6 +17,10 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 # Dependency
+
+#purpose: This function will be used to get a new session for each request
+#input: None
+#output: a new session object
 def get_db():
     #create a new session
     db = SessionLocal()

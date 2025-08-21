@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from typing import Optional
 from uuid import UUID
 
+# please read init.py for more information about the schemas
 class TeamCreate(BaseModel):
     team_name: str
 

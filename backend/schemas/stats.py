@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from uuid import UUID
 
+# please read init.py for more information about the schemas
 class IndividualBasicStats(BaseModel):
     user_id: UUID
     user_name: str

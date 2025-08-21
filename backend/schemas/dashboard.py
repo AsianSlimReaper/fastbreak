@@ -3,7 +3,7 @@ from typing import List, Literal, Optional
 from uuid import UUID
 from datetime import date
 
-
+# please read init.py for more information about the schemas
 class DashboardBase(BaseModel):
     model_config = {
         "from_attributes": True

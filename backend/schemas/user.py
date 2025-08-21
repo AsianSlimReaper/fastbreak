@@ -2,6 +2,7 @@ from pydantic import BaseModel
 import uuid
 from typing import Optional
 
+# please read init.py for more information about the schemas
 class UserCreate(BaseModel):
     name: str
     email: str
