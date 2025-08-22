@@ -5,10 +5,13 @@ import { useNavigate, useParams } from "react-router-dom";
 import ButtonComponent from "../universal/ButtonComponent.jsx";
 
 function PlayerCard({ profileCards }) {
+    // initialize navigate and params
     const navigate = useNavigate();
-    const { teamId: currentTeamId } = useParams();
+    const { teamId: currentTeamId } = useParams(); // get the current team ID from the URL parameters
 
+    // Function to handle card click and navigate to player profile
     const handleCardClick = (userId) => {
+        // Navigate to the player profile page with the current team ID and user ID
         navigate(`/player-profile/player/${currentTeamId}/${userId}`);
     };
 

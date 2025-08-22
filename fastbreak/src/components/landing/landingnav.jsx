@@ -4,17 +4,21 @@ import logo from '../../assets/logo.png';
 import './landingnav.css';
 
 function LandingNav() {
+	// This component renders the navigation bar for the landing page
 	const navigate = useNavigate();
 	const [dropdownOpen, setDropdownOpen] = useState(false);
 
+	// Function to toggle the dropdown menu
 	const toggleDropdown = () => {
 		setDropdownOpen((prev) => !prev);
 	};
 
+	// Function to close the dropdown menu
 	const closeDropdown = () => {
 		setDropdownOpen(false);
 	};
 
+	// Function to navigate to the home page and close the dropdown
 	const HomeClick = () => {
 		navigate('/');
 		closeDropdown();

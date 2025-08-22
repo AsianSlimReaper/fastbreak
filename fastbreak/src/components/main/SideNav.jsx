@@ -3,15 +3,19 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import './SideNav.css';
 
 function SideNav() {
+    // Using hooks to access navigation and location
     const navigate = useNavigate();
     const location = useLocation();
     const { teamId } = useParams(); 
 
+    // Function to handle navigation based on the section clicked
     const navigateTo = (section) => {
+        // If no teamId is present and the section is not 'teams', do not navigate
         if (!teamId && section !== "teams") {
             return;
         }
 
+        // Define the routes based on the section clicked
         const routes = {
             teams: '/teams/',
             dashboard: `/dashboard/team/${teamId}`,
@@ -20,10 +24,13 @@ function SideNav() {
             film: `/film-room/team/${teamId}`,
         };
 
+        // Navigate to the appropriate route
         navigate(routes[section]);
     };
 
+    // Function to determine if the button should be highlighted as active
     const buttonIsSelected = (section) => {
+        // Check if the current path includes the section name
         return location.pathname.includes(section) ? 'active-module' : '';
     };
 

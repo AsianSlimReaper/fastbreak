@@ -2,8 +2,10 @@ import React, { useState } from "react";
 import "./TabComponent.css"
 
 function TabComponent({ tabs, activeTab, setActiveTab }) {
+	// initialize internal state for active tab if not provided
 	const [internalActiveTab, internalSetActiveTab] = useState(0);
 
+	// Determine which active tab to use: provided prop or internal state
 	const currentActiveTab = activeTab !== undefined ? activeTab : internalActiveTab;
 	const currentSetActiveTab = setActiveTab || internalSetActiveTab;
 

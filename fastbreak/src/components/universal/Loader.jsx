@@ -1,6 +1,7 @@
 import React from "react";
 import "./Loader.css";
 
+//adapted from uiverse
 function Loader() {
 	return (
 		<div className="loader">
