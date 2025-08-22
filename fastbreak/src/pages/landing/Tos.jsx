@@ -36,6 +36,7 @@ function Tos(){
 
                     <h2>8. Contact Us</h2>
                     <p>If you have any questions about these Terms <Link to ="/contact"><strong>Please Click Here To Contact Us</strong></Link>.</p>
+                    <p>note that this is a project for school and not an actual app</p>
                 </div>
                 <Footer/>
             </main>

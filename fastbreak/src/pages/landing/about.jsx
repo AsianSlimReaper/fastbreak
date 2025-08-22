@@ -31,6 +31,7 @@ function About(){
                         We believe every team deserves data-driven coaching. FastBreak makes advanced analytics and
                         video tools accessible to all, helping players and coaches grow together.
                     </p>
+                    <p>note that this is a project for school and not an actual app</p>
                 </div>
                 <Footer/>
             </main>
