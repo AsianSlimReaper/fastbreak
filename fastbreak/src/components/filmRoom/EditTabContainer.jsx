@@ -18,6 +18,7 @@ function EditTabContainer({
 	selectedPlayerId,
 	onPlayerRowClick
 }) {
+	// Define the tabs with their labels and content
 	const tabs = [
 		{ label: "Basic Stats", content: <BasicStatsTable
 				teamStats={teamBasicStats}

@@ -11,8 +11,11 @@ function formatTimestamp(seconds) {
 const PlayByPlayTable = ({ playByPlay, currentTime, onPlayClick }) => {
     // Find the closest play to the current time
     let highlightIdx = -1;
+    // check if playByPlay is an array and has elements
     if (Array.isArray(playByPlay) && playByPlay.length > 0) {
+        // fine the index of the play that is closest to the current time
         highlightIdx = playByPlay.findIndex(
+            // set the condition to find the play that is closest to the current time
             (p, idx) =>
                 p.timestamp_seconds <= currentTime &&
                 (idx === playByPlay.length - 1 || playByPlay[idx + 1].timestamp_seconds > currentTime)

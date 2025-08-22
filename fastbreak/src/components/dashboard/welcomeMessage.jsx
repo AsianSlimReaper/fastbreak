@@ -1,6 +1,8 @@
 import React from "react";
 import './welcomeMessage.css'
 
+//input: currentTeam object
+//output: welcome message with team name
 function WelcomeMessage({ currentTeam: currentTeam }) {
     return(
         <>

@@ -1,7 +1,11 @@
 import React from "react";
 import './TeamStats.css'
 
+
+//input: teamStats object containing wins, losses, draws, offensive rating, defensive rating, and net rating
+//output: a grid of stats displaying the team's season record, offensive rating, defensive rating, and net rating
 function DashboardTeamStats({  teamStats }) {
+	//load data into variables
 	const wins = teamStats.wins;
 	const losses = teamStats.losses;
 	const draws = teamStats.draws;
@@ -11,6 +15,7 @@ function DashboardTeamStats({  teamStats }) {
 	const defRtg = teamStats.def_rtg;
 	const netRtg = teamStats.net_rtg;
 
+	//define styles for net rating based on its value
 	const netRtgStyle = {
 		color: netRtg > 0 ? "#18FF0A" : netRtg < 0 ? "#F70808" : "#8A8A8A"
 	};

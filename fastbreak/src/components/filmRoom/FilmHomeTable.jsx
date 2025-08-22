@@ -4,8 +4,10 @@ import { useNavigate } from "react-router-dom";
 import ButtonComponent from "../universal/ButtonComponent.jsx";
 
 function FilmHomeTable({ games, role, teamId }) {
+    // define the navigate function using useNavigate hook
     const navigate = useNavigate();
 
+    // define functions to navigate to different routes
     const navigateAddGame = () => {
         navigate(`/film-room/add-game/${teamId}`);
     };

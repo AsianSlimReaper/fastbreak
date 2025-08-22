@@ -1,7 +1,10 @@
 import React from "react";
 import "./AllIndividualStats.css";
 
+//input: IndividualStats - an array of objects containing individual player stats
+//output: a table displaying individual player stats with columns for Name, PPG, APG, RPG, SPG, and BPG
 function DashboardAllIndividualStats({ IndividualStats }) {
+	//check if IndividualStats is an array, if not, set it to an empty array
 	const players = Array.isArray(IndividualStats)
 		? IndividualStats
 		: [];

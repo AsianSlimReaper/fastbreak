@@ -1,7 +1,10 @@
 import React from "react";
 import './DashboardRecentGames.css'
 
+//input: dashboardData
+//output: a table of recent games with date, opponent, score, and results
 function DashboardRecentGames({dashboardData}){
+	//check if dashboardData is provided and has recent_games other wise default to an empty array
 	const recentGames = dashboardData?.recent_games || [];
 
 	return(

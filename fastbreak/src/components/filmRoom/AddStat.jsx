@@ -1,6 +1,7 @@
 import React from "react";
 import "./AddStat.css";
 
+// Button definitions for different stats
 const STAT_BUTTONS = [
     { label: "+2p Miss", value: "2p_miss" },
     { label: "2p Make", value: "2p_make" },

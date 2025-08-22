@@ -2,7 +2,10 @@ import React from "react";
 import PlayerAvatar from "../universal/PlayerAvatar.jsx";
 import './PlayerIndividualStats.css'
 
+//input: IndividualStats: object containing individual stats of the player
+//output: individual stats of the player in a card format
 function DashboardPlayerIndividualStats({IndividualStats,user_name}) {
+    //intializing the individual stats
     const ppg = IndividualStats.ppg;
     const apg = IndividualStats.apg;
     const rpg = IndividualStats.rpg;

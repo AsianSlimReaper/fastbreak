@@ -12,28 +12,44 @@ function BasicStatsTable({
 	// Helper to get player stats by user_id
 	const getPlayerStats = (user_id) => teamStats.find(p => String(p.user_id) === String(user_id));
 
-	// On Court and Bench player objects
+	// Filter out the opponent stats that are not in the teamStats
 	const onCourtPlayers = participants.filter(p => starters.map(String).includes(String(p.user_id)));
 	const benchPlayers = participants.filter(p => bench.map(String).includes(String(p.user_id)));
 
+	// State to manage selected players for adding
 	const [showAdd, setShowAdd] = useState(false);
+	// State to manage selected player IDs for adding
 	const [selectedIds, setSelectedIds] = useState([]);
 
+	// purpose: handle checkbox change for selecting players
+	//input: user_id - the ID of the player whose checkbox was toggled
+	//output: updates the selectedIds state to include or exclude the player ID
 	const handleCheckboxChange = (user_id) => {
+		// Toggle the selection of the player
 		setSelectedIds(prev =>
-			prev.includes(user_id)
+			// If the player is already selected, remove them; otherwise, add them
+			prev.includes(user_id) //prev is the previous state of selectedIds
 				? prev.filter(id => id !== user_id)
 				: [...prev, user_id]
 		);
 	};
 
+	// purpose: handle adding selected players to the team
+	// input: none
+	// output: filters the allPlayers list to find players that are selected and not already in participants,
 	const handleAddSelectedPlayers = () => {
+		// If no players are selected, do nothing
 		const toAdd = allPlayers.filter(
+			// Check if the player is selected and not already in participants
 			p => selectedIds.includes(String(p.user_id)) &&
+				// Check if the player is not already in the participants list
 				!participants.some(existing => String(existing.user_id) === String(p.user_id))
 		);
+		// add each selected player to the team using the onAddPlayer callback
 		toAdd.forEach(player => onAddPlayer(player));
+		// Reset the selected IDs and hide the modal
 		setSelectedIds([]);
+		// Hide the modal after adding players
 		setShowAdd(false);
 	};
 
