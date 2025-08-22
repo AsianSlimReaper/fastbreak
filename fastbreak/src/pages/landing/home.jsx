@@ -41,6 +41,7 @@ function Home() {
                     <p>
                       FastBreak combines video analysis and stats to create powerful insights and winning strategies
                     </p>
+                    <p><strong>disclaimer: This is a school project and is intended to be used as an actual app</strong></p>
                     <ButtonComponent onClick={scrollToGetStarted}>Get Started</ButtonComponent>
                 </div>
                     <img src={LandingIMG1} alt="Basketball strategy dashboard preview" className="LandingIMG1"></img>
