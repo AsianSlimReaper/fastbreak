@@ -20,6 +20,7 @@ import AddGame from "./pages/filmRoom/AddGame.jsx";
 import EditGame from "./pages/filmRoom/EditGame.jsx";
 import ViewGame from "./pages/filmRoom/ViewGame.jsx";
 
+// include all the routes for the application to create pages
 function App() {
     return (
         <AppLayout>
