@@ -14,16 +14,20 @@ function Contact() {
 		message: '',
 	});
 
+	// Handle input changes
 	const handleChange = (e) => {
+		// Destructure id and value from the event target
 		const { id, value } = e.target;
 		setFormData((prev) => ({ ...prev, [id]: value }));
 	};
 
+	// Handle form submission
 	const handleSubmit = (e) => {
+		// Prevent default form submission behavior
 		e.preventDefault();
 		console.log("Form has been submitted - this is a placeholder");
 		console.log(formData);
-		// Optionally reset form
+		// reset form
 		setFormData({ name: '', email: '', subject: '', message: '' });
 	};
 

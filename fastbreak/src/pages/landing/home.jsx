@@ -14,7 +14,10 @@ import saveIcon from '../../assets/save-icon.webp';
 import pieChart from '../../assets/pie-chart-icon.png';
 
 function Home() {
+    // useNavigate hook to navigate to login and register pages
     const navigate = useNavigate()
+
+    // Functions to handle navigation to login and register pages
     const LoginClick = () =>{
         navigate('/login')
     }
@@ -22,7 +25,9 @@ function Home() {
         navigate('/register')
     }
 
+    // Function to scroll to the "get-started" section
     const scrollToGetStarted = () => {
+        // Using scroller from react-scroll to scroll to the 'get-started' section
       scroller.scrollTo('get-started', {
         duration: 1000,
         delay: 0,

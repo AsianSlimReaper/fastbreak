@@ -17,6 +17,7 @@ import {UpdateBoxScore} from "../../services/filmRoom/boxScore.js";
 import ButtonComponent from "../../components/universal/ButtonComponent.jsx";
 
 function EditGame(){
+    //initialize variables,hooks and states
     const navigate = useNavigate();
     const {teamId,gameId}=useParams();
     const token = localStorage.getItem("access_token");
@@ -43,126 +44,170 @@ function EditGame(){
     const [playByPlayList, setPlayByPlayList] = useState([])
     const [subsList,setSubsList] = useState([])
 
+    // Load teams from localStorage when teamId is available
     useEffect(() => {
+        //get teams from localStorage
         const storedTeams = JSON.parse(localStorage.getItem("teams"));
+        //check if teams are available and teamId is present
         if (storedTeams && teamId) {
+            // sets teams state with the stored teams
             setTeams(storedTeams);
         }
-    }, [teamId]);
+    }, [teamId]); // Load teams only once when teamId changes
 
+    // Fetch game details, video, stats, and analysis
     useEffect(()=>{
         const fetchGameDetails = async()=>{
+            // Check if token and gameId are available
             if (!token || !gameId) return;
             try{
+                // Fetch game details using the GetGameDetails service
                 const gameDetails = await GetGameDetails(token,gameId);
+                // Set the game details in the state
                 setGame(gameDetails);
             }catch(error){
+                // Log the error and alert the user
                 console.error("error fetching game details",error);
                 alert("error fetching game details");
             }
         }
+        // Call the fetchGameDetails function to get game details
         fetchGameDetails();
-    },[token,gameId])
+    },[token,gameId]) // Run this effect when token or gameId changes
 
+    // Fetch game video using the GetVideo service
     useEffect(()=>{
         const fetchGameVideo = async() =>{
+            // Check if token and gameId are available
             if (!token || !gameId) return;
             try{
+                // Fetch video using the GetVideo service
                 const video = await GetVideo(token,gameId);
+                // Set the video URL in the state
                 setVideoUrl(video.url);
             }catch(error){
+                // Log the error and alert the user
                 console.error("error fetching game video",error);
                 alert("error fetching game video");
             }
         }
+        // Call the fetchGameVideo function to get game video
         fetchGameVideo();
-    },[token,gameId])
+    },[token,gameId]) // Run this effect when token or gameId changes
 
+    // Fetch game stats and analysis using the GetBasicStats, GetShootingStats, GetComments, and GetSubs services
     useEffect(()=>{
         const fetchGameStatsAndAnalysis = async()=>{
             try{
+                // get basic stats, shooting stats, comments, and subs for the game
                 const basicBoxScore = await GetBasicStats(token,gameId)
                 const shootingBoxScore = await GetShootingStats(token,gameId)
                 const gameComments = await GetComments(token,gameId)
                 const gameSubs = await GetSubs(token,gameId)
 
+                // set the fetched data in the respective states
                 setBasicStats(basicBoxScore)
                 setShootingStats(shootingBoxScore)
                 setComments(gameComments)
                 setSubs(gameSubs)
             }catch(error){
+                // Log the error and alert the user
                 console.error("error fetching data",error)
                 alert("error fetching data")
             }
         }
+        // Call the fetchGameStatsAndAnalysis function to get stats and analysis
         fetchGameStatsAndAnalysis()
-    },[token,gameId])
+    },[token,gameId]) // Run this effect when token or gameId changes
 
     // Fetch all team players for modal
     useEffect(() => {
         const fetchAllPlayers = async () => {
+            // Check if token and teamId are available
             if (!token || !teamId) return;
             try {
+                // Fetch all players for the team using GetTeamPlayers service
                 const teamPlayers = await GetTeamPlayers(token, teamId);
+                // Set the fetched players in the allPlayers state
                 setAllPlayers(teamPlayers);
             } catch (error) {
+                // Log the error and set allPlayers to an empty array
                 console.error("Error fetching team players:", error);
                 setAllPlayers([]);
             }
         };
+        // Call the fetchAllPlayers function to get all players
         fetchAllPlayers();
-    }, [token, teamId]);
+    }, [token, teamId]); // Run this effect when token or teamId changes
 
     // Fetch participants and starters/bench
     useEffect(() => {
         const fetchParticipantsAndStarters = async () => {
+            // Check if token, gameId, and teamId are available
             if (!token || !gameId || !teamId) return;
             try {
+                // Fetch team players and game participants
                 const teamPlayers = await GetTeamPlayers(token, teamId);
                 const gameParticipants = await GetGameParticipants(token, gameId);
+
+                // Set participants based on game participants and team players
                 const participantIds = gameParticipants.map(p => String(p.user_id));
                 const participantObjs = teamPlayers.filter(p => participantIds.includes(String(p.user_id)));
 
                 // Get starters from subs (timestamp_seconds === 0)
                 let startersList = [];
+                // check if subs is available and is an array
                 if (subs && Array.isArray(subs)) {
+                    // Find the starters sub (timestamp_seconds === 0)
                     const startersSub = subs.find(s => s.timestamp_seconds === 0);
+
+                    // If startersSub is found, parse its on_court field
                     if (startersSub && startersSub.on_court) {
                         if (typeof startersSub.on_court === "string") {
                             try {
+                                // Try to parse the on_court field as JSON
                                 startersList = JSON.parse(startersSub.on_court);
                             } catch {
+                                // If parsing fails, set startersList to an empty array
                                 startersList = [];
                             }
+                            // Ensure startersList is an array
                         } else if (Array.isArray(startersSub.on_court)) {
+                            // If on_court is already an array, use it directly
                             startersList = startersSub.on_court;
                         }
                     }
                 }
                 // Bench = participants - starters
+                // Convert all IDs to strings for consistent comparison
                 const benchList = participantIds.filter(id => !startersList.map(String).includes(String(id)));
 
+                // Set the participants, starters, and bench states
                 setParticipants(participantObjs);
                 setStarters(startersList);
                 setBench(benchList);
             } catch (error) {
+                // Log the error and set participants, starters, and bench to empty arrays
                 console.error("Error fetching participants or starters:", error);
                 setParticipants([]);
                 setStarters([]);
                 setBench([]);
             }
         };
+        // Call the fetchParticipantsAndStarters function to get participants and starters
         fetchParticipantsAndStarters();
-    }, [token, gameId, teamId, subs]);
+    }, [token, gameId, teamId, subs]); // Run this effect when token, gameId, teamId, or subs change
 
 
     // Handler to add new play-by-play entries and update state
     const handleAddPlayByPlays = async (newPlayByPlays) => {
+        //sets playByPlayList state with the new play-by-play entries
         setPlayByPlayList(prev => [...prev, ...newPlayByPlays]);
         console.log(playByPlayList);
     }
     // Handler to add a player (participant) to the game
     const handleAddPlayer = async ({ name, user_id }) => {
+        // Check if token, gameId, and user_id are available
         if (!token || !gameId || !user_id) return;
         try {
             // Call backend to add participant
@@ -199,9 +244,12 @@ function EditGame(){
             setBasicStats(prev => {
                 if (!prev) return prev;
                 // Avoid duplicate
+
+                // Check if player already exists in team
                 if (prev.team.some(p => String(p.user_id) === String(user_id))) return prev;
+                // Add new player with default stats
                 return {
-                    ...prev,
+                    ...prev, //keep existing stats
                     team: [
                         ...prev.team,
                         {
@@ -222,12 +270,16 @@ function EditGame(){
                     ]
                 };
             });
+            // Add default shooting stats for this player
             setShootingStats(prev => {
                 if (!prev) return prev;
                 // Avoid duplicate
+
+                // Check if player already exists in team
                 if (prev.team.some(p => String(p.user_id) === String(user_id))) return prev;
+                // Add new player with default shooting stats
                 return {
-                    ...prev,
+                    ...prev, //keep existing shooting stats
                     team: [
                         ...prev.team,
                         {
@@ -249,6 +301,7 @@ function EditGame(){
                 };
             });
         } catch (error) {
+            // Log the error and alert the user
             console.error("Failed to add player", error);
             alert("Failed to add player. Make sure the user ID is valid.");
         }
@@ -256,15 +309,19 @@ function EditGame(){
 
     // Handler to seek video to a specific time
     const handleSeekVideo = (seconds) => {
+        //sets videoSeek state with the seconds to seek to
         setVideoSeek(seconds);
     };
 
     // Helper to get player object by user_id
+    //finds a player in participants array by user_id
     const getPlayerById = (user_id) => participants.find(p => String(p.user_id) === String(user_id));
 
     // Handler for selecting opponent
     const handleSelectOpponent = () => {
+        //sets isOpponentSelected state to toggle opponent selection
         setIsOpponentSelected(prev => !prev);
+        // If switching to opponent, reset selected player
         setSelectedPlayerId(null);
     };
 
@@ -282,16 +339,25 @@ function EditGame(){
     }
 
     // Handler for stat button click
+    // this chunk of code was created with the help of ai
+    // half of it was made by me and the errors were fixed by ai
+    // idk how it works from line 343 to 500ish, this entire handleaddstat function
     const handleAddStat = (statType, playerObj) => {
+        // Check if the statType is substitution
         if (statType === "substitution") {
+            // playerObj not found, return early
             if (!playerObj) return;
+            // If already in sub mode, swap players
             setSubMode(true);
+            // Set the player to be substituted out
             setSubOutPlayerId(playerObj.user_id);
+            // Set the selected player to the one being substituted out
             return;
         }
         if (!playerObj) return;
         // Plus-minus logic
         let plusMinusDelta = 0;
+        // add plus-minus delta based on stat type
         if (statType === "2p_make") plusMinusDelta = 2;
         if (statType === "3p_make") plusMinusDelta = 3;
         if (statType === "ft_make") plusMinusDelta = 1;
@@ -310,8 +376,8 @@ function EditGame(){
         };
         handleAddPlayByPlays([pbpEvent]);
 
-        // If opponent is selected, update opponent stats and decrement team on-court plus-minus
         if (playerObj.is_opponent) {
+            //set the basic stats state with the updated stats
             setBasicStats(prev => {
                 if (!prev) return prev;
                 // Decrement all on-court team players' plus-minus
@@ -438,6 +504,7 @@ function EditGame(){
 
     // Handler for row click in stats table
     const handlePlayerRowClick = (user_id) => {
+        // Check if user_id is already selected
         if (subMode) {
             // Determine if subOutPlayerId is on court or on bench
             const isSubOutOnCourt = starters.map(String).includes(String(subOutPlayerId));
@@ -451,18 +518,22 @@ function EditGame(){
                 const newStarters = isSubOutOnCourt
                     ? starters.map(id => String(id) === String(subOutPlayerId) ? user_id : id)
                     : starters.map(id => String(id) === String(user_id) ? subOutPlayerId : id);
+                // Update state with new starters and bench
                 setStarters(newStarters);
+                // Update bench by swapping the subOutPlayerId with the clicked user_id
                 setBench(prev =>
                     isSubOutOnCourt
                         ? prev.map(id => String(id) === String(user_id) ? subOutPlayerId : id)
                         : prev.map(id => String(id) === String(subOutPlayerId) ? user_id : id)
                 );
                 setSelectedPlayerId(isSubOutOnCourt ? user_id : subOutPlayerId); // highlight the new on-court player
+                // Reset sub mode
                 setSubMode(false);
+                // Reset subOutPlayerId
                 setSubOutPlayerId(null);
                 // Add to subsList
                 setSubsList(prev => [
-                    ...prev,
+                    ...prev, //keep existing subs
                     {
                         game_id: gameId,
                         timestamp_seconds: videoRef.current && typeof videoRef.current.currentTime === "number" ? Math.floor(videoRef.current.currentTime) : 0,
@@ -472,6 +543,7 @@ function EditGame(){
             }
             return;
         }
+        // If not in sub mode, just select the player
         setSelectedPlayerId(user_id);
     };
 
@@ -479,6 +551,7 @@ function EditGame(){
     const handleAddComment = async (commentText, timestamp) => {
         // Add the new comment to the local comments state for immediate UI update
         setComments(prev => [
+            // keep existing comments
             ...(Array.isArray(prev) ? prev : []),
             {
                 comment_text: commentText,
@@ -486,7 +559,8 @@ function EditGame(){
             }
         ]);
 
-        setCommentsList(prev => [...prev, {
+        // set the commentsList state with the new comment
+        setCommentsList(prev => [...prev, { //keep existing comments
             comment_text: commentText,
             timestamp_seconds: Math.round(timestamp),
             game_id: gameId,}]);
@@ -495,15 +569,20 @@ function EditGame(){
     };
 
     const getTableData = () => {
+        // Check if basicStats and shootingStats are available
         if (!basicStats || !shootingStats) return [];
         // Map user_id to shooting stats for quick lookup
         const shootingMap = (shootingStats.team || []).reduce((acc, s) => {
+            // Ensure user_id is a string for consistent key usage
+            // Convert user_id to string to avoid issues with number vs string comparison
             acc[String(s.user_id)] = s;
             return acc;
         }, {});
         // Combine basic and shooting stats for each player
         const teamData = (basicStats.team || []).map((p) => {
+            // Ensure user_id is a string for consistent key usage
             const shooting = shootingMap[String(p.user_id)] || {};
+            // Return combined stats for each player
             return {
                 user_id: p.user_id,
                 name: p.name,
@@ -528,6 +607,7 @@ function EditGame(){
         });
         // Add opponent box score as another item in the array
         let opponentData = [];
+        // If opponent stats are available, add them to the data
         if (basicStats.opponent && basicStats.opponent.length > 0) {
             const opp = basicStats.opponent[0];
             const oppShooting = (shootingStats.opponent && shootingStats.opponent[0]) || {};
@@ -552,41 +632,53 @@ function EditGame(){
                 is_opponent: true
             });
         }
+        // Return combined data for both team and opponent
         return [...teamData, ...opponentData];
     }
 
+    // Handler to save all data (stats, play-by-plays, comments, subs)
     const handleSaveData = async() =>{
+        // Check if token and gameId are available
         if (!token || !gameId) return;
         try {
+            // retrieve the table data using getTableData helper function
             const StatsData = getTableData();
             // Only update box scores if there is data
             if (StatsData && StatsData.length > 0) {
+                // Update box scores for all players
                 const statsResponse = await UpdateBoxScore(token, gameId, StatsData);
                 console.log(statsResponse);
             }
             // Only send play by plays if there are new ones
             if (playByPlayList && playByPlayList.length > 0) {
+                // Create play-by-plays using the CreatePlayByPlays service
                 const pbpResponse = await CreatePlayByPlays(token, playByPlayList);
                 console.log(pbpResponse);
             }
             // Only send comments if there are new ones
             if (commentsList && commentsList.length > 0) {
+                // Create comments using the CreateComment service
                 console.log(commentsList)
                 const commentsResponse = await CreateComment(token, commentsList);
                 console.log(commentsResponse);
             }
             // Only send subs if there are new ones
             if (subsList && subsList.length > 0) {
+                // Create subs using the CreateSubs service
                 const subsResponse = await CreateSubs(token, subsList);
                 console.log(subsResponse);
             }
+            // Reset all lists after saving
             setPlayByPlayList([])
             setSubsList([])
             setCommentsList([])
+            // Alert user that data was saved successfully
             alert("Data saved successfully!");
 
+            // Redirect to team film room page
             navigate(`/film-room/team/${teamId}`)
         } catch (error) {
+            // Log the error and alert the user
             console.error("Failed to save data", error);
             alert("Failed to save data");
         }
@@ -599,8 +691,11 @@ function EditGame(){
         const sortedSubs = [...subs].sort((a, b) => a.timestamp_seconds - b.timestamp_seconds);
         // Find the latest sub at or before currentTime
         let lastSub = sortedSubs[0];
+        // Iterate through sorted subs to find the last one before currentTime
         for (let i = 0; i < sortedSubs.length; i++) {
+            // If the sub's timestamp is less than or equal to currentTime, update lastSub
             if (sortedSubs[i].timestamp_seconds <= currentTime) {
+                // If this is the first sub or it's later than the last found, update lastSub
                 lastSub = sortedSubs[i];
             } else {
                 break;
@@ -608,31 +703,45 @@ function EditGame(){
         }
         // on_court may be stringified JSON or array
         let onCourt;
+        // If on_court is a string, parse it; otherwise use it directly
         if (typeof lastSub.on_court === 'string') {
             try {
+                // Try to parse the on_court field as JSON
                 onCourt = JSON.parse(lastSub.on_court);
             } catch {
+                // If parsing fails, log the error and set onCourt to an empty array
                 onCourt = [];
             }
         } else {
+            // If on_court is already an array, use it directly
             onCourt = lastSub.on_court;
         }
+        // Ensure onCourt is an array of strings
         return onCourt || [];
     };
 
     // Update starters when video time changes
     useEffect(() => {
+        // If videoRef or subs are not available, return early
         if (!videoRef.current || !subs) return;
+        // Function to handle time update and set starters/bench
         const handleTimeUpdate = () => {
+            // Get the current time from the video player
             const currentTime = Math.floor(videoRef.current.currentTime || 0);
+            // Get the current on-court players based on the current time
             const onCourt = getCurrentOnCourt(currentTime);
+            // set the starters state with the current on-court players
             setStarters(onCourt);
             // Update bench as well
+            //loop through participants and filter out those on court
             const participantIds = participants.map(p => String(p.user_id));
             setBench(participantIds.filter(id => !onCourt.map(String).includes(String(id))));
         };
+        // Add event listener for timeupdate on the video element
         const video = videoRef.current;
+        // Check if video is available and has addEventListener method
         if (video && video.addEventListener) {
+            // Add timeupdate event listener to update starters/bench
             video.addEventListener('timeupdate', handleTimeUpdate);
             return () => video.removeEventListener('timeupdate', handleTimeUpdate);
         }

@@ -9,9 +9,12 @@ import IndividualShootingStats from "../../components/stats/IndividualShootingSt
 import TeamShootingStats from "../../components/stats/TeamShootingStats.jsx";
 
 function ShootingStats(){
+    // Get the access token from local storage
     const token = localStorage.getItem("access_token");
+    // Get the team ID from the URL parameters
     const {teamId} = useParams()
 
+    // State variables to hold teams, current team, team stats, and individual stats
     const [teams, setTeams] = useState([])
     const [currentTeam, setCurrentTeam] = useState(null)
     const [teamStats, setTeamStats] = useState({
@@ -32,34 +35,47 @@ function ShootingStats(){
     })
     const [individualStats, setIndividualStats] = useState([])
 
+    // Load teams from local storage and set the current team based on the teamId parameter
     useEffect(() => {
+        // get teams from local storage
         const storedTeams = JSON.parse(localStorage.getItem("teams"));
+        // If teams are stored and teamId is provided, set the teams state and find the current team
         if (storedTeams && teamId) {
             setTeams(storedTeams);
+            // Find the team that matches the teamId
             const matched = storedTeams.find(m => m.team.id === teamId);
             if (matched) {
+                // Set the current team to the matched team
                 setCurrentTeam(matched.team);
             }
         }
-    }, [teamId]);
+    }, [teamId]); // run when teamId changes
 
+    // Fetch shooting stats for the current team and individual players when the current team changes
     useEffect(() => {
         const fetchStats = async () => {
+            // If there is no current team, exit the function
             if (!currentTeam) return;
 
             try {
+                // Fetch team and individual shooting stats using the API services
                 const teamData = await getTeamShootingStats(currentTeam.id, token);
+                // Set the team stats state with the fetched data
                 setTeamStats(teamData);
 
+                // Fetch individual shooting stats for the current team
                 const individualData = await getIndividualShootingStats(currentTeam.id, token);
+                // Set the individual stats state with the fetched data
                 setIndividualStats(individualData);
             } catch (error) {
+                // Log any errors that occur during the fetch
                 console.error("Error loading stats:", error);
             }
         };
 
+        // Call the fetchStats function to load the stats
         fetchStats();
-    }, [currentTeam, token]);
+    }, [currentTeam, token]); // run when currentTeam or token changes
 
     return(
         <>

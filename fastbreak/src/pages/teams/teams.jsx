@@ -8,32 +8,41 @@ import './Teams.css';
 import {useNavigate} from "react-router-dom";
 
 function Teams(){
+    // initializing navigate from react-router-dom
     const navigate = useNavigate();
+    // getting the token from localStorage
     const token = localStorage.getItem('access_token')
+    // initializing state variables for user and teams
     const [user, setUser] = useState(null);
     const [teams, setTeams] = useState([]);
 
+    // function to navigate to the add team page
     const navigateToAddTeam = () => {
         navigate('/add-team');
     }
 
+    // useEffect to fetch user and teams data when the component mounts or when the token changes
     useEffect(() => {
         const fetchUserAndTeams =()=> {
             try {
+                // Fetch user data from localStorage
                 const userData = JSON.parse(localStorage.getItem('user'));
                 setUser(userData);
 
+                // Fetch team memberships from localStorage
                 const teamMembershipsData = JSON.parse(localStorage.getItem('teams'));
                 setTeams(teamMembershipsData);
             } catch (error) {
+                // If localStorage data is not available, fetch from API
                 console.error("Failed to fetch user or teams:", error);
             }
         }
 
         if (token) {
+            // Fetch user and teams data if token is available
             fetchUserAndTeams();
         }
-    }, [token]);
+    }, [token]); // run effect when token changes
 
     return(
         <>

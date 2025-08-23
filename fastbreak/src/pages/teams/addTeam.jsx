@@ -7,6 +7,7 @@ import ButtonComponent from "../../components/universal/ButtonComponent.jsx";
 import './AddTeam.css';
 
 function AddTeam() {
+    //initializing navigate, token, user, teams, currentTeam, teamName, jerseyNumber, position, teamId, creatingTeam, joiningTeam
     const navigate = useNavigate();
     const token = localStorage.getItem('access_token');
     const [user, setUser] = useState(null);
@@ -21,81 +22,110 @@ function AddTeam() {
     const [creatingTeam, setCreatingTeam] = useState(false);
     const [joiningTeam, setJoiningTeam] = useState(false);
 
+    // Function to handle team creation
     const handleCreateTeam = async () => {
+        // Validate team name
         if (!teamName.trim()) {
+            // Check if team name is empty
             alert("Please enter a team name.");
             return;
         }
 
+        // Check if user is authenticated
         if (!user || !token) {
+            // If user is not authenticated, show an alert
             alert("User not authenticated.");
             return;
         }
 
+        // Set creatingTeam to true to indicate that the team creation process has started
         setCreatingTeam(true);
         try {
+            // Call CreateTeam API to create a new team
             const new_team = await CreateTeam(teamName, token);
+            // call JoinTeam API to add the user as a coach to the newly created team
             const new_membership = await JoinTeam(new_team.id, user.id, 'coach', null,null,token);
 
+            // Update the teams state with the new membership
             const updatedTeams = [...teams, new_membership];
+            // Set the updated teams and current team
             setTeams(updatedTeams);
             setCurrentTeam(new_membership.team);
 
+            // Store the updated teams in localStorage
             localStorage.setItem('teams', JSON.stringify(updatedTeams));
 
+            // Reset the teamName state to clear the input field
             setTeamName('');
             navigate('/teams');
         } catch (error) {
+            // If an error occurs during team creation, log the error and show an alert
             console.error("Error creating team:", error);
             alert("Failed to create team. Please try again.");
         } finally {
+            // Set creatingTeam to false to indicate that the team creation process has ended
             setCreatingTeam(false);
         }
     };
 
     const handleJoinTeam = async () => {
+        // Validate team ID
         if (!teamId.trim()) {
             alert("Please enter a team ID.");
             return;
         }
 
+        // Validate if user is authenticated
         if (!user || !token) {
             alert("User not authenticated.");
             return;
         }
 
+        // Validate position and jersey number
         setJoiningTeam(true);
         try {
+            // Call JoinTeam API to join the team with the provided teamId, user id, position, and jersey number
             const new_membership = await JoinTeam(teamId, user.id, 'player', position, jerseyNumber, token);
             const updatedTeams = [...teams, new_membership];
+            // Update the teams state with the new membership
             setTeams(updatedTeams);
             setCurrentTeam(new_membership.team);
 
+            // Store the updated teams in localStorage
             localStorage.setItem('teams', JSON.stringify(updatedTeams));
 
+            // Reset the input fields after successful team join
             setTeamId('');
             setPosition('');
             setJerseyNumber('');
             navigate('/teams/');
         } catch (error) {
+            // If an error occurs during team joining, log the error and show an alert
             console.error("Error joining team:", error);
             alert("Failed to join team. Please check the Team ID and try again.");
         } finally {
+            // Set joiningTeam to false to indicate that the team joining process has ended
             setJoiningTeam(false);
         }
     };
 
+    // Fetch user and teams from localStorage on component mount
     useEffect(() => {
         try {
+            // Retrieve user data from localStorage and parse it
             const userData = JSON.parse(localStorage.getItem('user'));
+            // If user data exists, set it to the user state
             if (userData) setUser(userData);
 
+            // Retrieve team memberships from localStorage and parse it
             const teamMembershipsData = JSON.parse(localStorage.getItem('teams')) || [];
+            // If team memberships exist, set them to the teams state
             setTeams(teamMembershipsData);
         } catch (error) {
+            // If an error occurs while fetching user or teams, log the error
             console.error("Failed to fetch user or teams:", error);
         }
-    }, []);
+    }, []); // run only once on component mount
 
     return (
         <main>
