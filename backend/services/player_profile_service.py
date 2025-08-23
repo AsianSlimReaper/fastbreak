@@ -52,9 +52,9 @@ def get_player_card_data(db: Session, team_id: UUID):
         )
     ).scalars().all()
 
-    # If no memberships found, return an empty dict
+    # If no memberships found, return an empty list
     if not memberships:
-        return {}
+        return []
 
     # Prepare player card data
     player_cards = []
@@ -79,7 +79,7 @@ def get_player_card_data(db: Session, team_id: UUID):
             })
 
     # Return the list of player cards
-    return player_cards
+    return player_cards if player_cards else []
 
 #purpose: retrieve player profile data for a specific team and user
 #inputs: db session, team_id, user_id
