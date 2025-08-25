@@ -532,13 +532,19 @@ function EditGame(){
                 // Reset subOutPlayerId
                 setSubOutPlayerId(null);
                 // Add to subsList
+                const newSub = {
+                    game_id: gameId,
+                    timestamp_seconds: videoRef.current && typeof videoRef.current.currentTime === "number" ? Math.floor(videoRef.current.currentTime) : 0,
+                    on_court: newStarters.map(String)
+                };
                 setSubsList(prev => [
                     ...prev, //keep existing subs
-                    {
-                        game_id: gameId,
-                        timestamp_seconds: videoRef.current && typeof videoRef.current.currentTime === "number" ? Math.floor(videoRef.current.currentTime) : 0,
-                        on_court: newStarters.map(String)
-                    }
+                    newSub
+                ]);
+                // Immediately update subs state so UI reflects the new sub
+                setSubs(prev => [
+                    ...(Array.isArray(prev) ? prev : []),
+                    newSub
                 ]);
             }
             return;
