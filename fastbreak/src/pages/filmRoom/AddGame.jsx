@@ -155,6 +155,7 @@ function AddGame() {
                     <input
                         id="file"
                         type="file"
+                        accept="video/*"
                         onChange={(e) => setFile(e.target.files[0])}
                     />
 
