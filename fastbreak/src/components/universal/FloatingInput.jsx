@@ -3,7 +3,7 @@ import './FloatingInput.css';
 
 
 //adapted from uiverse
-function FloatingLabelInput({ label, id, type = 'text', required = false, value, onChange }) {
+function FloatingLabelInput({ label, id, type = 'text', required = false, value, onChange,min=null,max=null,step=null }) {
 	const [isFilled, setIsFilled] = useState(false);
 
 	useEffect(() => {
@@ -20,6 +20,9 @@ function FloatingLabelInput({ label, id, type = 'text', required = false, value,
 				autoComplete="off"
 				value={value}
 				onChange={onChange}
+				min={min}
+				max={max}
+				step={step}
 			/>
 			<label htmlFor={id}>
 				{label.split('').map((char, index) => (

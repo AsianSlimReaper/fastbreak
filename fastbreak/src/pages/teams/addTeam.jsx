@@ -144,8 +144,17 @@ function AddTeam() {
                         label='Jersey Number'
                         id='jerseyNumber'
                         type='number'
+                        min={0}
+                        max={99}
+                        step={1}
                         value={jerseyNumber}
-                        onChange={(e) => setJerseyNumber(e.target.value)}
+                        onChange={(e) => {
+                            const value = e.target.value;
+                            // Only allow integers between 0 and 99, no decimals
+                            if (/^\d{0,2}$/.test(value) && (value === '' || (Number(value) >= 0 && Number(value) <= 99))) {
+                                setJerseyNumber(value);
+                            }
+                        }}
                     />
                     <div className="add-team-select-position">
                         <label htmlFor="position">Position</label>
