@@ -16,7 +16,7 @@ function EditTabContainer({
 	activeTab,
 	setActiveTab,
 	selectedPlayerId,
-	onPlayerRowClick
+	onPlayerRowClick,addplayer = false
 }) {
 	// Define the tabs with their labels and content
 	const tabs = [
@@ -31,6 +31,7 @@ function EditTabContainer({
 				allPlayers={allPlayers}
 				selectedPlayerId={selectedPlayerId}
 				onPlayerRowClick={onPlayerRowClick}
+				addplayer={addplayer}
 			/> },
     	{ label: "Shooting Stats", content: <ShootingStatsTable
 				teamStats={teamShootingStats}

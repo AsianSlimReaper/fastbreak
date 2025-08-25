@@ -7,7 +7,7 @@ function BasicStatsTable({
 	participants = [], starters = [], bench = [],
 	onAddPlayer, allPlayers = [],
 	selectedPlayerId,
-	onPlayerRowClick
+	onPlayerRowClick, addplayer
 }) {
 	// Helper to get player stats by user_id
 	const getPlayerStats = (user_id) => teamStats.find(p => String(p.user_id) === String(user_id));
@@ -158,6 +158,7 @@ function BasicStatsTable({
 							</tr>
 						);
 					})}
+					{addplayer=== true &&
 					<tr>
 						<td colSpan='12' style={{textAlign:'center'}}>
 							<ButtonComponent onClick={() => setShowAdd(true)}>Add Player</ButtonComponent>
@@ -187,7 +188,7 @@ function BasicStatsTable({
 								</div>
 							)}
 						</td>
-					</tr>
+					</tr>}
 				</tbody>
 			</table>
 

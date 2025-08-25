@@ -813,6 +813,7 @@ function EditGame(){
                             setActiveTab={setActiveTab}
                             selectedPlayerId={selectedPlayerId}
                             onPlayerRowClick={handlePlayerRowClick}
+                            addplayer={true}
                         />
                     </div>
                 </div>
